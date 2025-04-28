@@ -14,7 +14,7 @@ namespace MIM40kFactions
         public HediffCompProperties_GiveHediffs Props => (HediffCompProperties_GiveHediffs)props;
         public override void CompPostPostAdd(DamageInfo? dinfo)
         {
-            if (!Utility_PawnValidator.IsPawnDeadValidator(parent.pawn))
+            if (!Utility_PawnValidationManager.IsPawnDeadValidator(parent.pawn))
             {
                 if (parent != null)
                 {

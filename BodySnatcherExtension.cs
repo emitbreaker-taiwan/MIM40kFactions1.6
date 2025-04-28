@@ -30,6 +30,8 @@ namespace MIM40kFactions
 
         public bool useClothing = true;
 
+        public bool useGeneSkinColor = false;
+
         //For Animal Carry Mass
         public float animalCarryMassModifier = -1f;
     }

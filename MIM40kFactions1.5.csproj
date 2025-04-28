@@ -81,6 +81,7 @@
     <Compile Include="AbilityRestrictionExtension.cs" />
     <Compile Include="ApparelRestrictionbyRaceExtension.cs" />
     <Compile Include="ApparelRestrictionbyHediffExtension.cs" />
+    <Compile Include="Utility_BodySnatcherManager.cs" />
     <Compile Include="Utility_BillConfigurator.cs" />
     <Compile Include="Dialog_LoadoutConfigurator.cs" />
     <Compile Include="ITargetingRules.cs" />
@@ -227,10 +228,10 @@
     <Compile Include="HediffGiver_MaxPsylink.cs" />
     <Compile Include="Utility_BackstoryManagement.cs" />
     <Compile Include="Utility_BodyTypeManagement.cs" />
-    <Compile Include="Utility_GeneDefManagement.cs" />
+    <Compile Include="Utility_GeneManager.cs" />
     <Compile Include="HediffCompProperties_GiveHediffs.cs" />
     <Compile Include="HediffComp_GiveHediffs.cs" />
-    <Compile Include="Utility_XenotypeManagement.cs" />
+    <Compile Include="Utility_XenotypeManager.cs" />
     <Compile Include="Utility_FactionManagement.cs" />
     <Compile Include="Utility_HediffManagement.cs" />
     <Compile Include="CompCauseAbilities_Apparel.cs" />
@@ -258,7 +259,7 @@
     <Compile Include="JobDriver_CastAbilityInstant.cs" />
     <Compile Include="JobDriver_CastAbilityPsycast.cs" />
     <Compile Include="JobDriver_CastAbilitySelf.cs" />
-    <Compile Include="Utility_PawnValidator.cs" />
+    <Compile Include="Utility_PawnValidationManager.cs" />
     <Compile Include="CompAbilityEffect_GiveHediffbyKeyword.cs" />
     <Compile Include="CompProperties_AbilityGiveHediffbyKeyword.cs" />
     <Compile Include="CompProperties_AbilityDeepStrike.cs" />

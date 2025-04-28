@@ -14,7 +14,7 @@ namespace MIM40kFactions
         {
             EMNC_Necron_ValidatiorExtension modExtension = thing.GetModExtension<EMNC_Necron_ValidatiorExtension>();
 
-            if (modExtension == null && gene == Utility_GeneDefManagement.Named("EMNC_Biotransference"))
+            if (modExtension == null && gene == Utility_GeneManager.GeneDefNamed("EMNC_Biotransference"))
                 return false;
 
             return true;

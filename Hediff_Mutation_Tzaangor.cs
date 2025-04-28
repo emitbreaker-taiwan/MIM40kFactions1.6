@@ -111,20 +111,20 @@ namespace MIM40kFactions
                 {
                     if (PawnUtility.GetPsylinkLevel(EMTS_victim) <= 0)
                     {
-                        mutationXenotype = Utility_XenotypeManagement.Named("EMTS_Tzaangor");
+                        mutationXenotype = Utility_XenotypeManager.XenotypeDefNamed("EMTS_Tzaangor");
                     }
                     else if (PawnUtility.GetPsylinkLevel(EMTS_victim) > 2)
                     {
-                        mutationXenotype = Utility_XenotypeManagement.Named("EMTS_TzaangorShaman");
+                        mutationXenotype = Utility_XenotypeManager.XenotypeDefNamed("EMTS_TzaangorShaman");
                     }
                     else
                     {
-                        mutationXenotype = Utility_XenotypeManagement.Named("EMTS_TzaangorEnlightened");
+                        mutationXenotype = Utility_XenotypeManager.XenotypeDefNamed("EMTS_TzaangorEnlightened");
                     }
                 }
                 else
                 {
-                    mutationXenotype = Utility_XenotypeManagement.Named("EMTS_Tzaangor");
+                    mutationXenotype = Utility_XenotypeManager.XenotypeDefNamed("EMTS_Tzaangor");
                 }
             }
             return mutationXenotype;

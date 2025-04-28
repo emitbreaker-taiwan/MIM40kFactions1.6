@@ -56,7 +56,7 @@ namespace MIM40kFactions
                     false,
                     null,
                     null,
-                    Utility_XenotypeManagement.Named("EMNC_Necrons"),
+                    Utility_XenotypeManager.XenotypeDefNamed("EMNC_Necrons"),
                     null,
                     null,
                     999f,

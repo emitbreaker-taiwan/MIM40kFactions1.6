@@ -16,7 +16,7 @@ namespace MIM40kFactions
 
         public override void CompPostTick(ref float severityAdjustment)
         {
-            if (!Utility_PawnValidator.IsPawnDeadValidator(parent.pawn))
+            if (!Utility_PawnValidationManager.IsPawnDeadValidator(parent.pawn))
             {
                 if (parent != null)
                 {

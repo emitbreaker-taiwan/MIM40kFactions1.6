@@ -6,7 +6,7 @@ namespace MIM40kFactions
     {
         public override void OnIntervalPassed(Pawn pawn, Hediff cause)
         {
-            if (!Utility_PawnValidator.IsPawnDeadValidator(pawn))
+            if (!Utility_PawnValidationManager.IsPawnDeadValidator(pawn))
             {
                 return;
             }

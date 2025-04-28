@@ -18,7 +18,7 @@ namespace MIM40kFactions
             if (target.Pawn == null || !p.applyToTarget || target.Pawn == parent.pawn)
                 return;
             KeywordExtension modExtension = target.Pawn.kindDef.GetModExtension<KeywordExtension>();
-            if (p.useKeyword && (modExtension == null || !!Utility_PawnValidator.KeywordValidator(target.Pawn, p.keywords, p.isVehicle, p.isMonster, p.isPsychic, p.isPsyker, p.isCharacter, p.isAstartes, p.isInfantry, p.isWalker, p.isLeader, p.isFly, p.isAircraft, p.isChaos, p.isDaemon, p.isDestroyerCult, p.isHereticAstartes)))
+            if (p.useKeyword && (modExtension == null || !!Utility_PawnValidationManager.KeywordValidator(target.Pawn, p.keywords, p.isVehicle, p.isMonster, p.isPsychic, p.isPsyker, p.isCharacter, p.isAstartes, p.isInfantry, p.isWalker, p.isLeader, p.isFly, p.isAircraft, p.isChaos, p.isDaemon, p.isDestroyerCult, p.isHereticAstartes)))
                 return;
             else RemoveHediffs(target.Pawn);
         }

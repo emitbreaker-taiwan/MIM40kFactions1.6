@@ -119,13 +119,15 @@ namespace MIM40kFactions
             //EMWH_GeneRestrictionPatch
             harmony.Patch(AccessTools.Method(typeof(Pawn_GeneTracker), "AddGene", new System.Type[2] { typeof(Gene), typeof(bool) }), new HarmonyMethod(typeof(EMWH_GeneRestrictionPatch).GetMethod("AddNecronGenePrefix")));
             harmony.Patch(AccessTools.Method(typeof(Pawn_GeneTracker), "AddGene", new System.Type[2] { typeof(Gene), typeof(bool) }), new HarmonyMethod(typeof(EMWH_GeneRestrictionPatch).GetMethod("AddGenetoKindPrefix")));
-
+            
             //EMWH_PawnBodySnatcher
             harmony.Patch(AccessTools.Method(typeof(AgeInjuryUtility), "GenerateRandomOldAgeInjuries"), new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("GenerateRandomOldAgeInjuriesPrefix")));
-            harmony.Patch(AccessTools.Method(typeof(PawnRenderNode_Body), "GraphicFor", new System.Type[1] { typeof(Pawn) }), new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("GraphicForBodyPreFix")));
-            harmony.Patch(AccessTools.Method(typeof(PawnRenderNode_Head), "GraphicFor", new System.Type[1] { typeof(Pawn) }), new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("GraphicForHeadPreFix")));
+            //harmony.Patch(AccessTools.Method(typeof(PawnRenderNode_Body), "GraphicFor", new System.Type[1] { typeof(Pawn) }), new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("GraphicForBodyPreFix")));
+            harmony.Patch(AccessTools.Method(typeof(PawnRenderNode_Body), "GraphicFor", new System.Type[1] { typeof(Pawn) }), new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("GraphicForBodyPreFix")), new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("GraphicForBodyPostFix")));
+            //harmony.Patch(AccessTools.Method(typeof(PawnRenderNode_Head), "GraphicFor", new System.Type[1] { typeof(Pawn) }), new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("GraphicForHeadPreFix")));
+            harmony.Patch(AccessTools.Method(typeof(PawnRenderNode_Head), "GraphicFor", new System.Type[1] { typeof(Pawn) }), new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("GraphicForHeadPreFix")), new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("GraphicForHeadPostfix")));
             harmony.Patch(AccessTools.Method(typeof(PawnRenderNodeWorker_Eye), "ScaleFor", new System.Type[2] { typeof(PawnRenderNode), typeof(PawnDrawParms) }), postfix: new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("ScaleForEyesPostFix")));
-            harmony.Patch(AccessTools.Method(typeof(PawnRenderNodeWorker_Eye), "OffsetFor", new System.Type[3] { typeof(PawnRenderNode), typeof(PawnDrawParms), typeof(Vector3).MakeByRefType() }), postfix: new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("OffsetForEyesPostFix")));
+            //harmony.Patch(AccessTools.Method(typeof(PawnRenderNodeWorker_Eye), "OffsetFor", new System.Type[3] { typeof(PawnRenderNode), typeof(PawnDrawParms), typeof(Vector3).MakeByRefType() }), postfix: new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("OffsetForEyesPostFix")));
             harmony.Patch(AccessTools.Method(typeof(PawnGenerator), "GetXenotypeForGeneratedPawn", new System.Type[1] { typeof(PawnGenerationRequest) }), postfix: new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("GetXenotypeForGeneratedPawnPostfix")));
             harmony.Patch(AccessTools.Method(typeof(HumanlikeMeshPoolUtility), "HumanlikeHeadWidthForPawn", new System.Type[1] { typeof(Pawn) }), postfix: new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("HumanlikeHeadWidthForPawnPostFix")));
             harmony.Patch(AccessTools.Method(typeof(HumanlikeMeshPoolUtility), "HumanlikeBodyWidthForPawn", new System.Type[1] { typeof(Pawn) }), postfix: new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("HumanlikeBodyWidthForPawnPostFix")));
@@ -179,7 +181,7 @@ namespace MIM40kFactions
     }
 
     public static class EMWH_PawnBodySnatcher
-    {        
+    {
         [HarmonyPrefix]
         public static bool GenerateRandomOldAgeInjuriesPrefix(Pawn pawn)
         {
@@ -196,407 +198,978 @@ namespace MIM40kFactions
         [HarmonyPrefix]
         public static void GraphicForBodyPreFix(Pawn pawn)
         {
-            if (pawn == null || !pawn.RaceProps.Humanlike)
-            {
-                return;
-            }
-            if (pawn.IsDessicated())
+            if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(pawn))
             {
                 return;
             }
 
-            if (pawn.RaceProps.Humanlike)
-            {
-                BodyGraphicRecovery(pawn);
-            }
-
-            BodySnatcherExtension modExtension = Utility_GetModExtension.GetBodySnatcherExtension(pawn);
+            var modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(pawn);
             if (modExtension == null)
             {
                 return;
             }
+
+            // ✅ Apply appearance tweaks (hair, beard, tattoos) and bodyTypeDef swap
             DoModextension(pawn, modExtension);
         }
 
-        private static void BodyGraphicRecovery(Pawn pawn)
-        {
-            string pathBodyMale = "Things/Pawn/Humanlike/Bodies/Naked_Male";
-            string pathBodyMaleDessicated = "Things/Pawn/Humanlike/Bodies/Dessicated/Dessicated_Male";
-            string pathBodyFemale = "Things/Pawn/Humanlike/Bodies/Naked_Female";
-            string pathBodyFemaleDessicated = "Things/Pawn/Humanlike/Bodies/Dessicated/Dessicated_Thin";
-            string pathBodyThin = "Things/Pawn/Humanlike/Bodies/Naked_Thin";
-            string pathBodyThinDessicated = "Things/Pawn/Humanlike/Bodies/Dessicated/Dessicated_Thin";
-            string pathBodyHulk = "Things/Pawn/Humanlike/Bodies/Naked_Hulk";
-            string pathBodyHulkDessicated = "Things/Pawn/Humanlike/Bodies/Dessicated/Dessicated_Male";
-            string pathBodyFat = "Things/Pawn/Humanlike/Bodies/Naked_Fat";
-            string pathBodyFatDessicated = "Things/Pawn/Humanlike/Bodies/Dessicated/Dessicated_Male";
-
-            if (pawn.story.bodyType == BodyTypeDefOf.Male)
-            {
-                pawn.story.bodyType.bodyNakedGraphicPath = pathBodyMale;
-                pawn.story.bodyType.bodyDessicatedGraphicPath = pathBodyMaleDessicated;
-            }
-            if (pawn.story.bodyType == BodyTypeDefOf.Female)
-            {
-                pawn.story.bodyType.bodyNakedGraphicPath = pathBodyFemale;
-                pawn.story.bodyType.bodyDessicatedGraphicPath = pathBodyFemaleDessicated;
-            }
-            if (pawn.story.bodyType == BodyTypeDefOf.Thin)
-            {
-                pawn.story.bodyType.bodyNakedGraphicPath = pathBodyThin;
-                pawn.story.bodyType.bodyDessicatedGraphicPath = pathBodyThinDessicated;
-            }
-            if (pawn.story.bodyType == BodyTypeDefOf.Hulk)
-            {
-                pawn.story.bodyType.bodyNakedGraphicPath = pathBodyHulk;
-                pawn.story.bodyType.bodyDessicatedGraphicPath = pathBodyHulkDessicated;
-            }
-            if (pawn.story.bodyType == BodyTypeDefOf.Fat)
-            {
-                pawn.story.bodyType.bodyNakedGraphicPath = pathBodyFat;
-                pawn.story.bodyType.bodyDessicatedGraphicPath = pathBodyFatDessicated;
-            }
-        }
-
+        /// <summary>
+        /// Applies body, hair, tattoo modifications to a pawn based on BodySnatcherExtension.
+        /// </summary>
         private static void DoModextension(Pawn pawn, BodySnatcherExtension modExtension)
         {
-            bool flag = false;
-            if (pawn.story.bodyType == modExtension.bodyTypeDef)
+            if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(pawn))
             {
                 return;
             }
 
-            if (modExtension != null && modExtension.bodyTypeDef == null && modExtension.pathBody.NullOrEmpty())
+            if (modExtension == null)
             {
                 return;
             }
 
-            if (pawn.story.bodyType == null)
+            // ✅ Ensure pawn has a valid bodyType
+            if (pawn.story?.bodyType == null)
             {
                 pawn.story.bodyType = BodyTypeDefOf.Hulk;
             }
 
-            if (modExtension != null && GeneValidator(pawn, flag, modExtension))
+            // ✅ Apply bodyTypeDef if specified
+            if (modExtension.bodyTypeDef != null && Utility_GeneManager.GeneValidator(pawn, modExtension))
             {
                 BodySnatcher(pawn, modExtension);
             }
 
-            if (modExtension.noBeard)
+            // ✅ Remove - No more direct body graphic path changes here
+            // Graphic override is now handled dynamically during rendering.
+
+            // ✅ Apply appearance modifications
+            if (pawn.style != null)
             {
-                pawn.style.beardDef = BeardDefOf.NoBeard;
+                if (modExtension.noBeard)
+                    pawn.style.beardDef = BeardDefOf.NoBeard;
+                if (modExtension.noFaceTattoo)
+                    pawn.style.FaceTattoo = TattooDefOf.NoTattoo_Face;
+                if (modExtension.noBodyTattoo)
+                    pawn.style.BodyTattoo = TattooDefOf.NoTattoo_Body;
             }
 
-            if (modExtension.noHair)
+            if (pawn.story != null)
             {
-                pawn.story.hairDef = HairDefOf.Bald;
+                if (modExtension.noHair)
+                    pawn.story.hairDef = HairDefOf.Bald;
             }
-
-            if (modExtension.noFaceTattoo)
-            {
-                pawn.style.FaceTattoo = TattooDefOf.NoTattoo_Face;
-            }
-
-            if (modExtension.noBodyTattoo)
-            {
-                pawn.style.BodyTattoo = TattooDefOf.NoTattoo_Body;
-            }
-
-            Shader shader = ShaderUtility.GetSkinShader(pawn);
-            Vector2 drawSize = Vector2.one;
-            Color color = pawn.story.SkinColor;
-            if (modExtension.invisibleSkin)
-            {
-                color = new Color((float)byte.MaxValue, (float)byte.MaxValue, (float)byte.MaxValue, 0.0f);
-            }
-
-            BodyGraphicReplacer(pawn, shader, drawSize, color, modExtension);
         }
 
-        public static bool GeneValidator(Pawn pawn, bool flag, BodySnatcherExtension modExtension)
+        [HarmonyPostfix]
+        public static void GraphicForBodyPostFix(Pawn pawn, ref Graphic __result)
         {
-            if (!ModsConfig.BiotechActive || modExtension.requiredGene == null)
+            if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(pawn))
             {
-                return true;
+                return;
             }
 
-            if (ModsConfig.BiotechActive && modExtension.requiredGene != null)
+            BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(pawn);
+            if (modExtension == null || modExtension.pathBody.NullOrEmpty())
+                return;
+
+            Shader shader = ShaderUtility.GetSkinShader(pawn);
+            Vector2 drawSize = modExtension.drawSize == default ? Vector2.one : modExtension.drawSize;
+            Color color = Color.white;
+
+            if (modExtension.useGeneSkinColor)
             {
-                foreach (Gene gene in pawn.genes?.GenesListForReading)
-                {
-                    if (gene.def == modExtension.requiredGene)
-                    {
-                        flag = true;
-                    }
-                }
+                color = pawn.story.SkinColor;
             }
-            if (flag == true)
+
+            if (pawn.Drawer.renderer.CurRotDrawMode == RotDrawMode.Dessicated)
             {
-                return true;
+                __result = GraphicDatabase.Get<Graphic_Multi>(modExtension.pathBody, shader, drawSize, color);
             }
             else
             {
-                Log.Warning("Seleted pawn does not have necessary Gene.");
-                return false;
+                __result = GraphicDatabase.Get<Graphic_Multi>(modExtension.pathBody, shader, drawSize, color);
             }
         }
 
         private static void BodySnatcher(Pawn pawn, BodySnatcherExtension modExtension)
         {
+            if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(pawn))
+            {
+                return;
+            }
+
             if (modExtension.bodyTypeDef != null)
             {
-                BodyTypeDef original = pawn.story.bodyType;
-                if (original != modExtension.bodyTypeDef)
+                if (pawn.story.bodyType != modExtension.bodyTypeDef)
                 {
-                    bool flag = false;
-                    List<BodyTypeDef> bodyTypedefListForReading = DefDatabase<BodyTypeDef>.AllDefsListForReading;
-                    foreach (BodyTypeDef bodyType in bodyTypedefListForReading)
-                    {
-                        if (bodyType == modExtension.bodyTypeDef)
-                        {
-                            flag = true;
-                        }
-                    }
-                    if (flag == true)
+                    if (DefDatabase<BodyTypeDef>.AllDefsListForReading.Contains(modExtension.bodyTypeDef))
                     {
                         pawn.story.bodyType = modExtension.bodyTypeDef;
                     }
                     else
                     {
-                        Log.Warning("Seleted bodyType does not exist. Set original bodyType.");
-                        pawn.story.bodyType = original;
-                        return;
+                        Log.Warning("Selected bodyType does not exist. Keeping original bodyType.");
                     }
                 }
             }
 
-            if (!modExtension.pathBody.NullOrEmpty() && PathBodyValidator(modExtension))
-            {
-                pawn.story.bodyType.bodyNakedGraphicPath = modExtension.pathBody;
-                pawn.story.bodyType.bodyDessicatedGraphicPath = modExtension.pathBody;
-            }
+            // ❗ NO: Don't mutate bodyType.graphicPath anymore
+            // Graphic override now handled dynamically.
 
-            if (modExtension.bodyTypeDef == null && modExtension.pathBody == null)
+            if (modExtension.bodyTypeDef == null && modExtension.pathBody.NullOrEmpty())
             {
-                Log.Error("Both bodyTypeDef and pathBody null. Operation failed");
-                return;
+                Log.Error("Both bodyTypeDef and pathBody are null. Operation failed.");
             }
         }
 
-        private static bool PathBodyValidator(BodySnatcherExtension modExtension)
-        {
-            if (modExtension.bodyTypeDef == null)
-            {
-                return true;
-            }
-            if (modExtension.bodyTypeDef != null && modExtension.usepathBodywithBodyDef)
-            {
-                return true;
-            }
-            return false;
-        }
+        /// <summary>
+        /// Old GraphicForBodyPreFix for just in case
+        /// </summary>
+        //[HarmonyPrefix]
+        //public static void GraphicForBodyPreFix(Pawn pawn)
+        //{
+        //    if (pawn == null || !pawn.RaceProps.Humanlike)
+        //    {
+        //        return;
+        //    }
+        //    if (pawn.IsDessicated())
+        //    {
+        //        return;
+        //    }
 
-        private static Graphic BodyGraphicReplacer(Pawn pawn, Shader shader, Vector2 drawSize, Color color, BodySnatcherExtension modExtension)
-        {
-            if (modExtension.drawSize != null && !ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core"))
-            {
-                drawSize = modExtension.drawSize;
-            }
+        //    if (pawn.RaceProps.Humanlike)
+        //    {
+        //        BodyGraphicRecovery(pawn);
+        //    }
 
-            if (shader == null)
-            {
-                return null;
-            }
+        //    BodySnatcherExtension modExtension = Utility_BodySnatcherExtensionManager.GetBodySnatcherExtension(pawn);
+        //    if (modExtension == null)
+        //    {
+        //        return;
+        //    }
+        //    DoModextension(pawn, modExtension);
+        //}
 
-            if (pawn.Drawer.renderer.CurRotDrawMode == RotDrawMode.Dessicated)
-            {
-                return GraphicDatabase.Get<Graphic_Multi>(pawn.story.bodyType.bodyDessicatedGraphicPath, shader);
-            }
+        /// <summary>
+        /// Old BodyGraphicRecovery for just in case
+        /// </summary>
+        //private static void BodyGraphicRecovery(Pawn pawn)
+        //{
+        //    string pathBodyMale = "Things/Pawn/Humanlike/Bodies/Naked_Male";
+        //    string pathBodyMaleDessicated = "Things/Pawn/Humanlike/Bodies/Dessicated/Dessicated_Male";
+        //    string pathBodyFemale = "Things/Pawn/Humanlike/Bodies/Naked_Female";
+        //    string pathBodyFemaleDessicated = "Things/Pawn/Humanlike/Bodies/Dessicated/Dessicated_Thin";
+        //    string pathBodyThin = "Things/Pawn/Humanlike/Bodies/Naked_Thin";
+        //    string pathBodyThinDessicated = "Things/Pawn/Humanlike/Bodies/Dessicated/Dessicated_Thin";
+        //    string pathBodyHulk = "Things/Pawn/Humanlike/Bodies/Naked_Hulk";
+        //    string pathBodyHulkDessicated = "Things/Pawn/Humanlike/Bodies/Dessicated/Dessicated_Male";
+        //    string pathBodyFat = "Things/Pawn/Humanlike/Bodies/Naked_Fat";
+        //    string pathBodyFatDessicated = "Things/Pawn/Humanlike/Bodies/Dessicated/Dessicated_Male";
 
-            if (ModsConfig.AnomalyActive && pawn.IsMutant && !pawn.mutant.Def.bodyTypeGraphicPaths.NullOrEmpty())
-            {
-                return GraphicDatabase.Get<Graphic_Multi>(pawn.mutant.Def.GetBodyGraphicPath(pawn), shader, drawSize, color);
-            }
+        //    if (pawn.story.bodyType == BodyTypeDefOf.Male)
+        //    {
+        //        pawn.story.bodyType.bodyNakedGraphicPath = pathBodyMale;
+        //        pawn.story.bodyType.bodyDessicatedGraphicPath = pathBodyMaleDessicated;
+        //    }
+        //    if (pawn.story.bodyType == BodyTypeDefOf.Female)
+        //    {
+        //        pawn.story.bodyType.bodyNakedGraphicPath = pathBodyFemale;
+        //        pawn.story.bodyType.bodyDessicatedGraphicPath = pathBodyFemaleDessicated;
+        //    }
+        //    if (pawn.story.bodyType == BodyTypeDefOf.Thin)
+        //    {
+        //        pawn.story.bodyType.bodyNakedGraphicPath = pathBodyThin;
+        //        pawn.story.bodyType.bodyDessicatedGraphicPath = pathBodyThinDessicated;
+        //    }
+        //    if (pawn.story.bodyType == BodyTypeDefOf.Hulk)
+        //    {
+        //        pawn.story.bodyType.bodyNakedGraphicPath = pathBodyHulk;
+        //        pawn.story.bodyType.bodyDessicatedGraphicPath = pathBodyHulkDessicated;
+        //    }
+        //    if (pawn.story.bodyType == BodyTypeDefOf.Fat)
+        //    {
+        //        pawn.story.bodyType.bodyNakedGraphicPath = pathBodyFat;
+        //        pawn.story.bodyType.bodyDessicatedGraphicPath = pathBodyFatDessicated;
+        //    }
+        //}
 
-            if (ModsConfig.AnomalyActive && pawn.IsCreepJoiner && pawn.story.bodyType != null && !pawn.creepjoiner.form.bodyTypeGraphicPaths.NullOrEmpty())
-            {
-                return GraphicDatabase.Get<Graphic_Multi>(pawn.creepjoiner.form.GetBodyGraphicPath(pawn), shader, drawSize, color);
-            }
+        /// <summary>
+        /// Old DoModextension for just in case
+        /// </summary>
+        //private static void DoModextension(Pawn pawn, BodySnatcherExtension modExtension)
+        //{
+        //    bool flag = false;
+        //    if (pawn.story.bodyType == modExtension.bodyTypeDef)
+        //    {
+        //        return;
+        //    }
 
-            if (pawn.story?.bodyType?.bodyNakedGraphicPath == null)
-            {
-                return null;
-            }
+        //    if (modExtension != null && modExtension.bodyTypeDef == null && modExtension.pathBody.NullOrEmpty())
+        //    {
+        //        return;
+        //    }
 
-            return GraphicDatabase.Get<Graphic_Multi>(pawn.story.bodyType.bodyNakedGraphicPath, shader, drawSize, color);
-        }
-        
+        //    if (pawn.story.bodyType == null)
+        //    {
+        //        pawn.story.bodyType = BodyTypeDefOf.Hulk;
+        //    }
+
+        //    if (modExtension != null && GeneValidator(pawn, flag, modExtension))
+        //    {
+        //        BodySnatcher(pawn, modExtension);
+        //    }
+
+        //    if (modExtension.noBeard)
+        //    {
+        //        pawn.style.beardDef = BeardDefOf.NoBeard;
+        //    }
+
+        //    if (modExtension.noHair)
+        //    {
+        //        pawn.story.hairDef = HairDefOf.Bald;
+        //    }
+
+        //    if (modExtension.noFaceTattoo)
+        //    {
+        //        pawn.style.FaceTattoo = TattooDefOf.NoTattoo_Face;
+        //    }
+
+        //    if (modExtension.noBodyTattoo)
+        //    {
+        //        pawn.style.BodyTattoo = TattooDefOf.NoTattoo_Body;
+        //    }
+
+        //    Shader shader = ShaderUtility.GetSkinShader(pawn);
+        //    Vector2 drawSize = Vector2.one;
+        //    Color color = pawn.story.SkinColor;
+        //    if (modExtension.invisibleSkin)
+        //    {
+        //        color = new Color((float)byte.MaxValue, (float)byte.MaxValue, (float)byte.MaxValue, 0.0f);
+        //    }
+
+        //    BodyGraphicReplacer(pawn, shader, drawSize, color, modExtension);
+        //}
+
+        /// <summary>
+        /// Old GeneValidator for just in case
+        /// </summary>
+        //public static bool GeneValidator(Pawn pawn, bool flag, BodySnatcherExtension modExtension)
+        //{
+        //    if (!ModsConfig.BiotechActive || modExtension.requiredGene == null)
+        //    {
+        //        return true;
+        //    }
+
+        //    if (ModsConfig.BiotechActive && modExtension.requiredGene != null)
+        //    {
+        //        foreach (Gene gene in pawn.genes?.GenesListForReading)
+        //        {
+        //            if (gene.def == modExtension.requiredGene)
+        //            {
+        //                flag = true;
+        //            }
+        //        }
+        //    }
+        //    if (flag == true)
+        //    {
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        Log.Warning("Seleted pawn does not have necessary Gene.");
+        //        return false;
+        //    }
+        //}
+
+        /// <summary>
+        /// Old BodySnatcher for just in case
+        /// </summary>
+        //private static void BodySnatcher(Pawn pawn, BodySnatcherExtension modExtension)
+        //{
+        //    if (modExtension.bodyTypeDef != null)
+        //    {
+        //        BodyTypeDef original = pawn.story.bodyType;
+        //        if (original != modExtension.bodyTypeDef)
+        //        {
+        //            bool flag = false;
+        //            List<BodyTypeDef> bodyTypedefListForReading = DefDatabase<BodyTypeDef>.AllDefsListForReading;
+        //            foreach (BodyTypeDef bodyType in bodyTypedefListForReading)
+        //            {
+        //                if (bodyType == modExtension.bodyTypeDef)
+        //                {
+        //                    flag = true;
+        //                }
+        //            }
+        //            if (flag == true)
+        //            {
+        //                pawn.story.bodyType = modExtension.bodyTypeDef;
+        //            }
+        //            else
+        //            {
+        //                Log.Warning("Seleted bodyType does not exist. Set original bodyType.");
+        //                pawn.story.bodyType = original;
+        //                return;
+        //            }
+        //        }
+        //    }
+
+        //    if (!modExtension.pathBody.NullOrEmpty() && PathBodyValidator(modExtension))
+        //    {
+        //        pawn.story.bodyType.bodyNakedGraphicPath = modExtension.pathBody;
+        //        pawn.story.bodyType.bodyDessicatedGraphicPath = modExtension.pathBody;
+        //    }
+
+        //    if (modExtension.bodyTypeDef == null && modExtension.pathBody == null)
+        //    {
+        //        Log.Error("Both bodyTypeDef and pathBody null. Operation failed");
+        //        return;
+        //    }
+        //}
+
+        /// <summary>
+        /// Old PathBodyValidator for just in case
+        /// </summary>
+        //private static bool PathBodyValidator(BodySnatcherExtension modExtension)
+        //{
+        //    if (modExtension.bodyTypeDef == null)
+        //    {
+        //        return true;
+        //    }
+        //    if (modExtension.bodyTypeDef != null && modExtension.usepathBodywithBodyDef)
+        //    {
+        //        return true;
+        //    }
+        //    return false;
+        //}
+
+        /// <summary>
+        /// Old BodyGraphicReplacer for just in case
+        /// </summary>
+        //private static Graphic BodyGraphicReplacer(Pawn pawn, Shader shader, Vector2 drawSize, Color color, BodySnatcherExtension modExtension)
+        //{
+        //    if (modExtension.drawSize != null && !ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core"))
+        //    {
+        //        drawSize = modExtension.drawSize;
+        //    }
+
+        //    if (shader == null)
+        //    {
+        //        return null;
+        //    }
+
+        //    if (pawn.Drawer.renderer.CurRotDrawMode == RotDrawMode.Dessicated)
+        //    {
+        //        return GraphicDatabase.Get<Graphic_Multi>(pawn.story.bodyType.bodyDessicatedGraphicPath, shader);
+        //    }
+
+        //    if (ModsConfig.AnomalyActive && pawn.IsMutant && !pawn.mutant.Def.bodyTypeGraphicPaths.NullOrEmpty())
+        //    {
+        //        return GraphicDatabase.Get<Graphic_Multi>(pawn.mutant.Def.GetBodyGraphicPath(pawn), shader, drawSize, color);
+        //    }
+
+        //    if (ModsConfig.AnomalyActive && pawn.IsCreepJoiner && pawn.story.bodyType != null && !pawn.creepjoiner.form.bodyTypeGraphicPaths.NullOrEmpty())
+        //    {
+        //        return GraphicDatabase.Get<Graphic_Multi>(pawn.creepjoiner.form.GetBodyGraphicPath(pawn), shader, drawSize, color);
+        //    }
+
+        //    if (pawn.story?.bodyType?.bodyNakedGraphicPath == null)
+        //    {
+        //        return null;
+        //    }
+
+        //    return GraphicDatabase.Get<Graphic_Multi>(pawn.story.bodyType.bodyNakedGraphicPath, shader, drawSize, color);
+        //}
+
         [HarmonyPrefix]
         public static void GraphicForHeadPreFix(Pawn pawn)
         {
-            if (pawn == null || !pawn.RaceProps.Humanlike)
-            {
-                return;
-            }
-            if (pawn.IsDessicated())
+            if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(pawn))
             {
                 return;
             }
 
-            BodySnatcherExtension modExtension = Utility_GetModExtension.GetBodySnatcherExtension(pawn);
-
+            BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(pawn);
             if (modExtension == null)
-            {
                 return;
-            }
 
             if (!modExtension.invisibleHead && modExtension.headTypeDef == null)
-            {
                 return;
-            }
 
+            // ✅ Set invisible head if requested
             if (modExtension.invisibleHead)
             {
                 pawn.story.headType = Utility_HeadTypeDefManagement.Named("EMWH_Invisible");
                 return;
             }
 
-            bool flag = false;
             if (pawn.story.headType == null)
             {
                 pawn.story.headType = Utility_HeadTypeDefManagement.Named("Male_AverageNormal");
             }
-            HeadTypeDef original = pawn.story.headType;
 
-            if (modExtension != null && GeneValidator(pawn, flag, modExtension) == true && modExtension.headTypeDef != null)
+            if (modExtension.headTypeDef != null && Utility_GeneManager.GeneValidator(pawn, modExtension))
             {
-                List<HeadTypeDef> headtypedefListForReading = DefDatabase<HeadTypeDef>.AllDefsListForReading;
-                foreach (HeadTypeDef headType in headtypedefListForReading)
-                {
-                    if (headType == modExtension.headTypeDef)
-                    {
-                        flag = true;
-                    }
-                }
-
-                if (flag == true)
+                if (DefDatabase<HeadTypeDef>.AllDefsListForReading.Contains(modExtension.headTypeDef))
                 {
                     pawn.story.headType = modExtension.headTypeDef;
                 }
                 else
                 {
-                    Log.Warning("Seleted headType does not exist. Set original headtype.");
-                    pawn.story.headType = original;
-                    return;
+                    Log.Warning("Selected headType does not exist. Keeping original headType.");
                 }
             }
         }
 
         [HarmonyPostfix]
-        public static void ScaleForEyesPostFix(PawnRenderNode node, PawnDrawParms parms, ref Vector3 __result)
+        public static void GraphicForHeadPostfix(Pawn pawn, ref Graphic __result)
         {
-            if (parms.pawn == null || !parms.pawn.RaceProps.Humanlike)
-            {
-                return;
-            }
-            if (parms.pawn.IsDessicated())
+            if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(pawn) || pawn.health?.hediffSet == null || !pawn.health.hediffSet.HasHead)
             {
                 return;
             }
 
-            BodySnatcherExtension modExtension = Utility_GetModExtension.GetBodySnatcherExtension(parms.pawn);
-            Vector2 drawSize = new Vector2();
-
+            BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(pawn);
             if (modExtension == null)
-            {
                 return;
-            }
 
             if (modExtension.invisibleHead)
             {
-                return;
-            }
+                Shader shader = ShaderUtility.GetSkinShader(pawn);
+                Vector2 drawSize = Vector2.one;
+                Color color = Color.clear; // Fully transparent
 
-            if (modExtension == null || modExtension.drawSize.x < 0)
+                __result = GraphicDatabase.Get<Graphic_Multi>("PawnRenderNode/InvisibleHead", shader, drawSize, color);
+            }
+        }
+        /// <summary>
+        /// Old GraphicForHeadPreFix for just in case
+        /// </summary>
+        //[HarmonyPrefix]
+        //public static void GraphicForHeadPreFix(Pawn pawn)
+        //{
+        //    if (pawn == null || !pawn.RaceProps.Humanlike)
+        //    {
+        //        return;
+        //    }
+        //    if (pawn.IsDessicated())
+        //    {
+        //        return;
+        //    }
+
+        //    BodySnatcherExtension modExtension = Utility_BodySnatcherExtensionManager.GetBodySnatcherExtension(pawn);
+
+        //    if (modExtension == null)
+        //    {
+        //        return;
+        //    }
+
+        //    if (!modExtension.invisibleHead && modExtension.headTypeDef == null)
+        //    {
+        //        return;
+        //    }
+
+        //    if (modExtension.invisibleHead)
+        //    {
+        //        pawn.story.headType = Utility_HeadTypeDefManagement.Named("EMWH_Invisible");
+        //        return;
+        //    }
+
+        //    bool flag = false;
+        //    if (pawn.story.headType == null)
+        //    {
+        //        pawn.story.headType = Utility_HeadTypeDefManagement.Named("Male_AverageNormal");
+        //    }
+        //    HeadTypeDef original = pawn.story.headType;
+
+        //    if (modExtension != null && GeneValidator(pawn, flag, modExtension) == true && modExtension.headTypeDef != null)
+        //    {
+        //        List<HeadTypeDef> headtypedefListForReading = DefDatabase<HeadTypeDef>.AllDefsListForReading;
+        //        foreach (HeadTypeDef headType in headtypedefListForReading)
+        //        {
+        //            if (headType == modExtension.headTypeDef)
+        //            {
+        //                flag = true;
+        //            }
+        //        }
+
+        //        if (flag == true)
+        //        {
+        //            pawn.story.headType = modExtension.headTypeDef;
+        //        }
+        //        else
+        //        {
+        //            Log.Warning("Seleted headType does not exist. Set original headtype.");
+        //            pawn.story.headType = original;
+        //            return;
+        //        }
+        //    }
+        //}
+
+        /// <summary>
+        /// Old HumanlikeHeadWidthForPawnPostFix for just in case
+        /// </summary>
+        //[HarmonyPostfix]
+        //public static void HumanlikeHeadWidthForPawnPostFix(Pawn pawn, ref float __result)
+        //{
+        //    if (!pawn.RaceProps.Humanlike)
+        //    {
+        //        return;
+        //    }
+        //    float multiplier = 1f;
+        //    BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(pawn);
+        //    if (modExtension == null)
+        //    {
+        //        return;
+        //    }
+        //    if (modExtension != null)
+        //    {
+        //        if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.useVEFCoreScaler)
+        //        {
+        //            return;
+        //        }
+
+        //        if (modExtension.headdrawSize == null || !Utility_GeneManager.GeneValidator(pawn, modExtension))
+        //        {
+        //            return;
+        //        }
+        //        if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.headdrawSize.x > 1.3f)
+        //        {
+        //            modExtension.headdrawSize.x = 1.3f;
+        //        }
+        //        multiplier = modExtension.headdrawSize.x;
+        //    }
+        //    __result *= multiplier;
+        //}
+
+        /// <summary>
+        /// Old HumanlikeBodyWidthForPawnPostFix for just in case
+        /// </summary>
+        //[HarmonyPostfix]
+        //public static void HumanlikeBodyWidthForPawnPostFix(Pawn pawn, ref float __result)
+        //{
+        //    if (!pawn.RaceProps.Humanlike)
+        //    {
+        //        return;
+        //    }
+
+        //    float multiplier = 1f;
+        //    BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(pawn);
+        //    if (modExtension == null)
+        //    {
+        //        return;
+        //    }
+        //    if (modExtension != null)
+        //    {
+        //        if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.useVEFCoreScaler)
+        //        {
+        //            return;
+        //        }
+
+        //        if (modExtension.drawSize == null || !Utility_GeneManager.GeneValidator(pawn, modExtension))
+        //        {
+        //            return;
+        //        }
+        //        if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.drawSize.x > 1.3f)
+        //        {
+        //            modExtension.drawSize.x = 1.3f;
+        //        }
+        //        multiplier = modExtension.drawSize.x;
+        //    }
+
+        //    __result *= multiplier;
+        //}
+
+        /// <summary>
+        /// Old GetHumanlikeHairSetForPawnPostFix for just in case
+        /// </summary>
+        //[HarmonyPostfix]
+        //public static void GetHumanlikeHairSetForPawnPostFix(Pawn pawn, ref GraphicMeshSet __result)
+        //{
+        //    if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(pawn))
+        //    {
+        //        return;
+        //    }
+
+        //    if (pawn.health.State == PawnHealthState.Dead || pawn.Dead)
+        //    {
+        //        return;
+        //    }
+
+        //    if (pawn.story.hairDef == HairDefOf.Bald || pawn.story.hairDef == null)
+        //    {
+        //        return;
+        //    }
+
+        //    float modifier = 1f;
+        //    BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(pawn);
+
+        //    if (modExtension == null)
+        //    {
+        //        return;
+        //    }
+
+        //    if (modExtension != null)
+        //    {
+        //        if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.useVEFCoreScaler)
+        //        {
+        //            return;
+        //        }
+
+        //        if (modExtension.headdrawSize == null || !Utility_GeneManager.GeneValidator(pawn, modExtension))
+        //        {
+        //            return;
+        //        }
+        //        if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.headdrawSize.x > 1.3f)
+        //        {
+        //            modExtension.headdrawSize.x = 1.3f;
+        //        }
+        //        modifier = modExtension.headdrawSize.x;
+        //    }
+        //    if (pawn.story.headType.hairMeshSize == null)
+        //    {
+        //        pawn.story.headType.hairMeshSize = new Vector2(1.5f, 1.5f);
+        //    }
+
+        //    Vector2 vector = pawn.story.headType.hairMeshSize * modifier;
+        //    if (ModsConfig.BiotechActive && pawn.ageTracker.CurLifeStage.headSizeFactor.HasValue)
+        //    {
+        //        vector *= pawn.ageTracker.CurLifeStage.headSizeFactor.Value;
+        //    }
+
+        //    __result = MeshPool.GetMeshSetForSize(vector.x, vector.y);
+        //}
+
+        /// <summary>
+        /// Old GetHumanlikeBeardSetForPawnPostFix for just in case
+        /// </summary>
+        //[HarmonyPostfix]
+        //public static void GetHumanlikeBeardSetForPawnPostFix(Pawn pawn, ref GraphicMeshSet __result)
+        //{
+        //    if (!pawn.RaceProps.Humanlike)
+        //    {
+        //        return;
+        //    }
+
+        //    if (pawn.health.State == PawnHealthState.Dead || pawn.Dead)
+        //    {
+        //        return;
+        //    }
+
+        //    if (pawn.IsDessicated())
+        //    {
+        //        return;
+        //    }
+
+        //    if (pawn.style.beardDef == BeardDefOf.NoBeard || pawn.style.beardDef == null)
+        //    {
+        //        return;
+        //    }
+
+        //    float modifier = 1f;
+        //    BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(pawn);
+
+        //    if (modExtension == null)
+        //    {
+        //        return;
+        //    }
+        //    if (modExtension != null)
+        //    {
+        //        if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.useVEFCoreScaler)
+        //        {
+        //            return;
+        //        }
+
+        //        if (modExtension.headdrawSize == null || !Utility_GeneManager.GeneValidator(pawn, modExtension))
+        //        {
+        //            return;
+        //        }
+        //        if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.headdrawSize.x > 1.3f)
+        //        {
+        //            modExtension.headdrawSize.x = 1.3f;
+        //        }
+        //        modifier = modExtension.headdrawSize.x;
+        //    }
+        //    if (pawn.story.headType.hairMeshSize == null)
+        //    {
+        //        pawn.story.headType.hairMeshSize = new Vector2(1.5f, 1.5f);
+        //    }
+
+        //    Vector2 vector = pawn.story.headType.beardMeshSize * modifier;
+        //    if (ModsConfig.BiotechActive && pawn.ageTracker.CurLifeStage.headSizeFactor.HasValue)
+        //    {
+        //        vector *= pawn.ageTracker.CurLifeStage.headSizeFactor.Value;
+        //    }
+
+        //    __result = MeshPool.GetMeshSetForSize(vector.x, vector.y);
+        //}
+
+        /// <summary>
+        /// Old ScaleForEyesPostFix for just in case
+        /// </summary>
+        //[HarmonyPostfix]
+        //public static void ScaleForEyesPostFix(PawnRenderNode node, PawnDrawParms parms, ref Vector3 __result)
+        //{
+        //    if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(parms.pawn))
+        //    {
+        //        return;
+        //    }
+
+        //    BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(parms.pawn);
+        //    Vector2 drawSize = new Vector2();
+
+        //    if (modExtension == null)
+        //    {
+        //        return;
+        //    }
+
+        //    if (modExtension.invisibleHead)
+        //    {
+        //        return;
+        //    }
+
+        //    if (modExtension == null || modExtension.drawSize.x < 0)
+        //    {
+        //        return;
+        //    }
+
+        //    if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.useVEFCoreScaler)
+        //    {
+        //        return;
+        //    }
+
+        //    if (modExtension.drawSize == null || !Utility_GeneManager.GeneValidator(parms.pawn, modExtension))
+        //    {
+        //        return;
+        //    }
+
+        //    drawSize = modExtension.drawSize;
+
+        //    if (modExtension.headdrawSize.x > 0f)
+        //    {
+        //        drawSize = modExtension.headdrawSize;
+        //    }
+
+        //    if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && drawSize.x > 1.3f)
+        //    {
+        //        drawSize.x = 1.3f;
+        //    }
+
+        //    Vector3 originalSize = __result;
+        //    __result = new Vector3(originalSize.x * drawSize.x, originalSize.y * drawSize.x, originalSize.z * drawSize.x);
+        //}
+
+        /// <summary>
+        /// Old OffsetForEyesPostFix for just in case
+        /// </summary>
+        //[HarmonyPostfix]
+        //public static void OffsetForEyesPostFix(PawnRenderNode node, PawnDrawParms parms, ref Vector3 __result)
+        //{
+        //    if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(parms.pawn))
+        //    {
+        //        return;
+        //    }
+
+        //    BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(parms.pawn);
+
+        //    if (modExtension == null)
+        //    {
+        //        return;
+        //    }
+
+        //    if (modExtension.invisibleHead)
+        //    {
+        //        return;
+        //    }
+
+        //    if (modExtension == null || modExtension.drawSize.x < 0)
+        //    {
+        //        return;
+        //    }
+
+        //    if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.useVEFCoreScaler)
+        //    {
+        //        return;
+        //    }
+
+        //    if (modExtension.drawSize == null || !Utility_GeneManager.GeneValidator(parms.pawn, modExtension))
+        //    {
+        //        return;
+        //    }
+
+        //    if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.drawSize.x > 1.3f)
+        //    {
+        //        modExtension.drawSize.x = 1.3f;
+        //    }
+
+        //    Vector3 originalSize = __result;
+        //    __result = new Vector3(originalSize.x * modExtension.drawSize.x, originalSize.y * modExtension.drawSize.x, originalSize.z * modExtension.drawSize.x);
+        //}
+
+        /// <summary>
+        /// Old SpawnFleckPreFix for just in case
+        /// </summary>
+        //[HarmonyPrefix]
+        //public static void SpawnFleckPreFix(LocalTargetInfo target, CompAbilityEffect_FleckOnTarget __instance)
+        //{
+        //    if (__instance == null)
+        //    {
+        //        return;
+        //    }
+
+        //    if (!target.HasThing || target == null || target.Pawn == null || !target.Pawn.RaceProps.Humanlike)
+        //    {
+        //        return;
+        //    }
+
+        //    float modifier = 1f;
+        //    BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(target.Pawn);
+
+        //    if (modExtension == null)
+        //    {
+        //        return;
+        //    }
+
+        //    if (modExtension != null)
+        //    {
+        //        if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.useVEFCoreScaler)
+        //        {
+        //            return;
+        //        }
+
+        //        if (modExtension.drawSize == null || !Utility_GeneManager.GeneValidator(target.Pawn, modExtension))
+        //        {
+        //            return;
+        //        }
+        //        if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.drawSize.x > 1.3f)
+        //        {
+        //            modExtension.drawSize.x = 1.3f;
+        //        }
+        //        modifier = modExtension.drawSize.x;
+        //    }
+        //    __instance.Props.scale = modifier;
+        //}
+
+        [HarmonyPostfix]
+        public static void HumanlikeHeadWidthForPawnPostFix(Pawn pawn, ref float __result)
+        {
+            if (!pawn.RaceProps.Humanlike)
             {
                 return;
             }
 
-            if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.useVEFCoreScaler)
-            {
-                return;
-            }
-
-            bool flag = false;
-
-            if (modExtension.drawSize == null || !GeneValidator(parms.pawn, flag, modExtension))
-            {
-                return;
-            }
-
-            drawSize = modExtension.drawSize;
-
-            if (modExtension.headdrawSize.x > 0f)
-            {
-                drawSize = modExtension.headdrawSize;
-            }
-
-            if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && drawSize.x > 1.3f)
-            {
-                drawSize.x = 1.3f;
-            }
-
-            Vector3 originalSize = __result;
-            __result = new Vector3(originalSize.x * drawSize.x, originalSize.y * drawSize.x, originalSize.z * drawSize.x);
+            float scaling = Utility_BodySnatcherManager.GetScaling(pawn, isHeadPart: true);
+            __result *= scaling;
         }
 
         [HarmonyPostfix]
-        public static void OffsetForEyesPostFix(PawnRenderNode node, PawnDrawParms parms, ref Vector3 __result)
+        public static void HumanlikeBodyWidthForPawnPostFix(Pawn pawn, ref float __result)
         {
-            if (parms.pawn == null || !parms.pawn.RaceProps.Humanlike)
-            {
-                return;
-            }
-            if (parms.pawn.IsDessicated())
+            if (!pawn.RaceProps.Humanlike)
             {
                 return;
             }
 
-            BodySnatcherExtension modExtension = Utility_GetModExtension.GetBodySnatcherExtension(parms.pawn);
+            float scaling = Utility_BodySnatcherManager.GetScaling(pawn, isHeadPart: false);
+            __result *= scaling;
+        }
 
-            if (modExtension == null)
+        [HarmonyPostfix]
+        public static void GetHumanlikeHairSetForPawnPostFix(Pawn pawn, ref GraphicMeshSet __result)
+        {
+            if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(pawn))
             {
                 return;
             }
 
-            if (modExtension.invisibleHead)
+            if (pawn.story.hairDef == HairDefOf.Bald || pawn.story.hairDef == null)
             {
                 return;
             }
 
-            if (modExtension == null || modExtension.drawSize.x < 0)
+            float scaling = Utility_BodySnatcherManager.GetScaling(pawn, isHeadPart: true);
+
+            Vector2 baseSize = pawn.story.headType.beardMeshSize;
+            if (baseSize == default(Vector2))
+            {
+                baseSize = new Vector2(1.5f, 1.5f);
+            }
+            Vector2 finalSize = baseSize * scaling;
+
+            if (ModsConfig.BiotechActive && pawn.ageTracker.CurLifeStage.headSizeFactor.HasValue)
+            {
+                finalSize *= pawn.ageTracker.CurLifeStage.headSizeFactor.Value;
+            }
+
+            __result = MeshPool.GetMeshSetForSize(finalSize.x, finalSize.y);
+        }
+
+        [HarmonyPostfix]
+        public static void GetHumanlikeBeardSetForPawnPostFix(Pawn pawn, ref GraphicMeshSet __result)
+        {
+            if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(pawn))
             {
                 return;
             }
 
-            if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.useVEFCoreScaler)
+            if (pawn.style.beardDef == BeardDefOf.NoBeard || pawn.style.beardDef == null)
+                return;
+
+            float scaling = Utility_BodySnatcherManager.GetScaling(pawn, isHeadPart: true);
+
+            Vector2 baseSize = pawn.story.headType.beardMeshSize;
+            if (baseSize == default(Vector2))
+            {
+                baseSize = new Vector2(1.5f, 1.5f);
+            }
+            Vector2 finalSize = baseSize * scaling;
+
+            if (ModsConfig.BiotechActive && pawn.ageTracker.CurLifeStage.headSizeFactor.HasValue)
+            {
+                finalSize *= pawn.ageTracker.CurLifeStage.headSizeFactor.Value;
+            }
+
+            __result = MeshPool.GetMeshSetForSize(finalSize.x, finalSize.y);
+        }
+
+        [HarmonyPostfix]
+        public static void ScaleForEyesPostFix(PawnRenderNode node, PawnDrawParms parms, ref Vector3 __result)
+        {
+            if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(parms.pawn))
             {
                 return;
             }
 
-            bool flag = false;
-
-            if (modExtension.drawSize == null || !GeneValidator(parms.pawn, flag, modExtension))
-            {
-                return;
-            }
-
-            if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.drawSize.x > 1.3f)
-            {
-                modExtension.drawSize.x = 1.3f;
-            }
+            float scaling = Utility_BodySnatcherManager.GetScaling(parms.pawn, isHeadPart: true);
 
             Vector3 originalSize = __result;
-            __result = new Vector3(originalSize.x * modExtension.drawSize.x, originalSize.y * modExtension.drawSize.x, originalSize.z * modExtension.drawSize.x);
+            __result = new Vector3(originalSize.x * scaling, originalSize.y * scaling, originalSize.z * scaling);
+        }
+
+        //[HarmonyPostfix]
+        //public static void OffsetForEyesPostFix(PawnRenderNode node, PawnDrawParms parms, ref Vector3 __result)
+        //{
+        //    if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(parms.pawn))
+        //    {
+        //        return;
+        //    }
+
+        //    float scaling = Utility_BodySnatcherManager.GetScaling(parms.pawn, isHeadPart: true);
+
+        //    Vector3 originalSize = __result;
+        //    __result = new Vector3(originalSize.x * scaling, originalSize.y * scaling, originalSize.z * scaling);
+        //}
+
+        [HarmonyPrefix]
+        public static void SpawnFleckPreFix(LocalTargetInfo target, CompAbilityEffect_FleckOnTarget __instance)
+        {
+            if (__instance == null || target.Pawn == null || !target.Pawn.RaceProps.Humanlike)
+            {
+                return;
+            }
+
+            float scaling = Utility_BodySnatcherManager.GetScaling(target.Pawn, isHeadPart: false);
+            __instance.Props.scale *= scaling;
         }
 
         [HarmonyPostfix]
@@ -618,294 +1191,62 @@ namespace MIM40kFactions
             {
                 if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CH.CD"))
                 {
-                    if (__result == (Utility_XenotypeManagement.Named("EMCD_PinkHorror")))
+                    if (__result == (Utility_XenotypeManager.XenotypeDefNamed("EMCD_PinkHorror")))
                     {
                         __result = XenotypeDefOf.Baseliner;
                     }
-                    if (__result == (Utility_XenotypeManagement.Named("EMCD_BlueHorror")))
+                    if (__result == (Utility_XenotypeManager.XenotypeDefNamed("EMCD_BlueHorror")))
                     {
                         __result = XenotypeDefOf.Baseliner;
                     }
-                    if (__result == (Utility_XenotypeManagement.Named("EMCD_Changecaster")))
+                    if (__result == (Utility_XenotypeManager.XenotypeDefNamed("EMCD_Changecaster")))
                     {
                         __result = XenotypeDefOf.Baseliner;
                     }
-                    if (__result == (Utility_XenotypeManagement.Named("EMCD_Fateskimmer")))
+                    if (__result == (Utility_XenotypeManager.XenotypeDefNamed("EMCD_Fateskimmer")))
                     {
                         __result = XenotypeDefOf.Baseliner;
                     }
-                    if (__result == (Utility_XenotypeManagement.Named("EMCD_Fluxmaster")))
+                    if (__result == (Utility_XenotypeManager.XenotypeDefNamed("EMCD_Fluxmaster")))
                     {
                         __result = XenotypeDefOf.Baseliner;
                     }
-                    if (__result == (Utility_XenotypeManagement.Named("EMCD_Flamer")))
+                    if (__result == (Utility_XenotypeManager.XenotypeDefNamed("EMCD_Flamer")))
                     {
                         __result = XenotypeDefOf.Baseliner;
                     }
-                    if (__result == (Utility_XenotypeManagement.Named("EMCD_ExaltedFlamer")))
+                    if (__result == (Utility_XenotypeManager.XenotypeDefNamed("EMCD_ExaltedFlamer")))
                     {
                         __result = XenotypeDefOf.Baseliner;
                     }
-                    if (__result == (Utility_XenotypeManagement.Named("EMCD_Changeling")))
+                    if (__result == (Utility_XenotypeManager.XenotypeDefNamed("EMCD_Changeling")))
                     {
                         __result = XenotypeDefOf.Baseliner;
                     }
-                    if (__result == (Utility_XenotypeManagement.Named("EMCD_LordofChange")))
+                    if (__result == (Utility_XenotypeManager.XenotypeDefNamed("EMCD_LordofChange")))
                     {
                         __result = XenotypeDefOf.Baseliner;
                     }
                 }
                 if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.GC.Core"))
                 {
-                    if (__result == (Utility_XenotypeManagement.Named("EMGC_PurestrainGenestealer")))
+                    if (__result == (Utility_XenotypeManager.XenotypeDefNamed("EMGC_PurestrainGenestealer")))
                     {
                         __result = XenotypeDefOf.Baseliner;
                     }
-                    if (__result == (Utility_XenotypeManagement.Named("EMGC_Patriarch")))
+                    if (__result == (Utility_XenotypeManager.XenotypeDefNamed("EMGC_Patriarch")))
                     {
                         __result = XenotypeDefOf.Baseliner;
                     }
                 }
                 if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.NC.Core"))
                 {
-                    if (__result == (Utility_XenotypeManagement.Named("EMNC_Necrons")))
+                    if (__result == (Utility_XenotypeManager.XenotypeDefNamed("EMNC_Necrons")))
                     {
                         __result = XenotypeDefOf.Baseliner;
                     }
                 }
             }
-        }
-
-        [HarmonyPostfix]
-        public static void HumanlikeHeadWidthForPawnPostFix(Pawn pawn, ref float __result)
-        {
-            if (!pawn.RaceProps.Humanlike)
-            {
-                return;
-            }
-            float multiplier = 1f;
-            BodySnatcherExtension modExtension = Utility_GetModExtension.GetBodySnatcherExtension(pawn);
-            if (modExtension == null)
-            {
-                return;
-            }
-            if (modExtension != null)
-            {
-                if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.useVEFCoreScaler)
-                {
-                    return;
-                }
-                bool flag = false;
-                if (modExtension.headdrawSize == null || !GeneValidator(pawn, flag, modExtension))
-                {
-                    return;
-                }
-                if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.headdrawSize.x > 1.3f)
-                {
-                    modExtension.headdrawSize.x = 1.3f;
-                }
-                multiplier = modExtension.headdrawSize.x;
-            }
-            __result *= multiplier;
-        }
-
-        [HarmonyPostfix]
-        public static void HumanlikeBodyWidthForPawnPostFix(Pawn pawn, ref float __result)
-        {
-            if (!pawn.RaceProps.Humanlike)
-            {
-                return;
-            }
-
-            float multiplier = 1f;
-            BodySnatcherExtension modExtension = Utility_GetModExtension.GetBodySnatcherExtension(pawn);
-            if (modExtension == null)
-            {
-                return;
-            }
-            if (modExtension != null)
-            {
-                if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.useVEFCoreScaler)
-                {
-                    return;
-                }
-                bool flag = false;
-                if (modExtension.drawSize == null || !GeneValidator(pawn, flag, modExtension))
-                {
-                    return;
-                }
-                if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.drawSize.x > 1.3f)
-                {
-                    modExtension.drawSize.x = 1.3f;
-                }
-                multiplier = modExtension.drawSize.x;
-            }
-
-            __result *= multiplier;
-        }
-
-        [HarmonyPostfix]
-        public static void GetHumanlikeHairSetForPawnPostFix(Pawn pawn, ref GraphicMeshSet __result)
-        {
-            if (!pawn.RaceProps.Humanlike)
-            {
-                return;
-            }
-
-            if (pawn.health.State == PawnHealthState.Dead || pawn.Dead)
-            {
-                return;
-            }
-
-            if (pawn.IsDessicated())
-            {
-                return;
-            }
-
-            if (pawn.story.hairDef == HairDefOf.Bald || pawn.story.hairDef == null)
-            {
-                return;
-            }
-
-            float modifier = 1f;
-            BodySnatcherExtension modExtension = Utility_GetModExtension.GetBodySnatcherExtension(pawn);
-
-            if (modExtension == null)
-            {
-                return;
-            }
-
-            if (modExtension != null)
-            {
-                if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.useVEFCoreScaler)
-                {
-                    return;
-                }
-                bool flag = false;
-                if (modExtension.headdrawSize == null || !GeneValidator(pawn, flag, modExtension))
-                {
-                    return;
-                }
-                if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.headdrawSize.x > 1.3f)
-                {
-                    modExtension.headdrawSize.x = 1.3f;
-                }
-                modifier = modExtension.headdrawSize.x;
-            }
-            if (pawn.story.headType.hairMeshSize == null)
-            {
-                pawn.story.headType.hairMeshSize = new Vector2(1.5f, 1.5f);
-            }
-
-            Vector2 vector = pawn.story.headType.hairMeshSize * modifier;
-            if (ModsConfig.BiotechActive && pawn.ageTracker.CurLifeStage.headSizeFactor.HasValue)
-            {
-                vector *= pawn.ageTracker.CurLifeStage.headSizeFactor.Value;
-            }
-
-            __result = MeshPool.GetMeshSetForSize(vector.x, vector.y);
-        }
-
-        [HarmonyPostfix]
-        public static void GetHumanlikeBeardSetForPawnPostFix(Pawn pawn, ref GraphicMeshSet __result)
-        {
-            if (!pawn.RaceProps.Humanlike)
-            {
-                return;
-            }
-
-            if (pawn.health.State == PawnHealthState.Dead || pawn.Dead)
-            {
-                return;
-            }
-
-            if (pawn.IsDessicated())
-            {
-                return;
-            }
-
-            if (pawn.style.beardDef == BeardDefOf.NoBeard || pawn.style.beardDef == null)
-            {
-                return;
-            }
-
-            float modifier = 1f;
-            BodySnatcherExtension modExtension = Utility_GetModExtension.GetBodySnatcherExtension(pawn);
-
-            if (modExtension == null)
-            {
-                return;
-            }
-            if (modExtension != null)
-            {
-                if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.useVEFCoreScaler)
-                {
-                    return;
-                }
-                bool flag = false;
-                if (modExtension.headdrawSize == null || !GeneValidator(pawn, flag, modExtension))
-                {
-                    return;
-                }
-                if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.headdrawSize.x > 1.3f)
-                {
-                    modExtension.headdrawSize.x = 1.3f;
-                }
-                modifier = modExtension.headdrawSize.x;
-            }
-            if (pawn.story.headType.hairMeshSize == null)
-            {
-                pawn.story.headType.hairMeshSize = new Vector2(1.5f, 1.5f);
-            }
-
-            Vector2 vector = pawn.story.headType.beardMeshSize * modifier;
-            if (ModsConfig.BiotechActive && pawn.ageTracker.CurLifeStage.headSizeFactor.HasValue)
-            {
-                vector *= pawn.ageTracker.CurLifeStage.headSizeFactor.Value;
-            }
-
-            __result = MeshPool.GetMeshSetForSize(vector.x, vector.y);
-        }
-
-        [HarmonyPrefix]
-        public static void SpawnFleckPreFix(LocalTargetInfo target, CompAbilityEffect_FleckOnTarget __instance)
-        {
-            if (__instance == null)
-            {
-                return;
-            }
-
-            if (!target.HasThing || target == null || target.Pawn == null || !target.Pawn.RaceProps.Humanlike)
-            {
-                return;
-            }
-
-            float modifier = 1f;
-            BodySnatcherExtension modExtension = Utility_GetModExtension.GetBodySnatcherExtension(target.Pawn);
-
-            if (modExtension == null)
-            {
-                return;
-            }
-
-            if (modExtension != null)
-            {
-                if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.useVEFCoreScaler)
-                {
-                    return;
-                }
-                bool flag = false;
-                if (modExtension.drawSize == null || !GeneValidator(target.Pawn, flag, modExtension))
-                {
-                    return;
-                }
-                if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.drawSize.x > 1.3f)
-                {
-                    modExtension.drawSize.x = 1.3f;
-                }
-                modifier = modExtension.drawSize.x;
-            }
-            __instance.Props.scale = modifier;
         }
     }
 
@@ -1480,7 +1821,7 @@ namespace MIM40kFactions
 
             if (p.RaceProps.Humanlike)
             {
-                BodySnatcherExtension modExtension = Utility_GetModExtension.GetBodySnatcherExtension(p);
+                BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(p);
                 MassCarriedExtension modExtension2 = Utility_GetModExtension.GetMassCarriedExtension(p);
 
                 if (modExtension == null && modExtension2 == null)
@@ -1571,7 +1912,7 @@ namespace MIM40kFactions
                 return;
             }
 
-            BodySnatcherExtension modExtension = Utility_GetModExtension.GetBodySnatcherExtension(__instance);
+            BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(__instance);
 
             if (modExtension == null)
             {
@@ -1714,13 +2055,13 @@ namespace MIM40kFactions
                 return;
             }
 
-            BodySnatcherExtension modExtension = Utility_GetModExtension.GetBodySnatcherExtension(pawn);
+            BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(pawn);
 
             if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.GC.Core"))
             {
                 if (modExtension == null && (pawn.story.headType == Utility_HeadTypeDefManagement.Named("Male_PurestrainGenestealer") || pawn.story.headType == Utility_HeadTypeDefManagement.Named("Female_PurestrainGenestealer")))
                 {
-                    if (ModsConfig.BiotechActive && (pawn.genes.Xenotype == Utility_XenotypeManagement.Named("EMGC_PurestrainGenestealer") || pawn.genes.Xenotype == Utility_XenotypeManagement.Named("EMGC_Patriarch")))
+                    if (ModsConfig.BiotechActive && (pawn.genes.Xenotype == Utility_XenotypeManager.XenotypeDefNamed("EMGC_PurestrainGenestealer") || pawn.genes.Xenotype == Utility_XenotypeManager.XenotypeDefNamed("EMGC_Patriarch")))
                     {
                         __result = true;
                     }

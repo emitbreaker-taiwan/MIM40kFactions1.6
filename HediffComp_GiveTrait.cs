@@ -16,7 +16,7 @@ namespace MIM40kFactions
 
         public override void CompPostPostAdd(DamageInfo? dinfo)
         {
-            if (!Utility_PawnValidator.IsPawnDeadValidator(parent.pawn))
+            if (!Utility_PawnValidationManager.IsPawnDeadValidator(parent.pawn))
             {
                 return;
             }

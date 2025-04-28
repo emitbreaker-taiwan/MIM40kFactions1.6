@@ -48,7 +48,7 @@ namespace MIM40kFactions
             {
                 for (int i = 0; i < burstShotCount; i++)
                 {
-                    if (Props.useKeyword && Utility_PawnValidator.KeywordValidator(target.Pawn, Props.keywords, Props.isVehicle, Props.isMonster, Props.isPsychic, Props.isPsyker, Props.isCharacter, Props.isAstartes, Props.isInfantry, Props.isWalker, Props.isLeader, Props.isFly, Props.isAircraft, Props.isChaos, Props.isDaemon, Props.isDestroyerCult, Props.isHereticAstartes))
+                    if (Props.useKeyword && Utility_PawnValidationManager.KeywordValidator(target.Pawn, Props.keywords, Props.isVehicle, Props.isMonster, Props.isPsychic, Props.isPsyker, Props.isCharacter, Props.isAstartes, Props.isInfantry, Props.isWalker, Props.isLeader, Props.isFly, Props.isAircraft, Props.isChaos, Props.isDaemon, Props.isDestroyerCult, Props.isHereticAstartes))
                     {
                         int rand = Rand.RangeInclusive(1, 6);
                         if (Props.keywordBonus > 0 && Props.keywordBonus <= rand)
@@ -70,7 +70,7 @@ namespace MIM40kFactions
             }
             else
             {
-                if (Props.useKeyword && Utility_PawnValidator.KeywordValidator(target.Pawn, Props.keywords, Props.isVehicle, Props.isMonster, Props.isPsychic, Props.isPsyker, Props.isCharacter, Props.isAstartes, Props.isInfantry, Props.isWalker, Props.isLeader, Props.isFly, Props.isAircraft, Props.isChaos, Props.isDaemon, Props.isDestroyerCult, Props.isHereticAstartes))
+                if (Props.useKeyword && Utility_PawnValidationManager.KeywordValidator(target.Pawn, Props.keywords, Props.isVehicle, Props.isMonster, Props.isPsychic, Props.isPsyker, Props.isCharacter, Props.isAstartes, Props.isInfantry, Props.isWalker, Props.isLeader, Props.isFly, Props.isAircraft, Props.isChaos, Props.isDaemon, Props.isDestroyerCult, Props.isHereticAstartes))
                 {
                     int rand = Rand.RangeInclusive(1, 6);
                     if (Props.keywordBonus > 0 && Props.keywordBonus <= rand)

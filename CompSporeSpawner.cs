@@ -376,7 +376,7 @@ namespace MIM40kFactions
 
         private bool IsValidSpawner()
         {
-            return parent.Spawned && (!(parent is Pawn pawn) || Utility_PawnValidator.IsPawnDeadValidator(pawn));
+            return parent.Spawned && (!(parent is Pawn pawn) || Utility_PawnValidationManager.IsPawnDeadValidator(pawn));
         }
     }
 }

@@ -18,8 +18,8 @@ namespace MIM40kFactions
 
             ageTicks++;
 
-            if (ModsConfig.BiotechActive && ModsConfig.IsActive("emitbreaker.MIM.WH40k.NC.Core") && pawn.genes.Xenotype != Utility_XenotypeManagement.Named("EMNC_Necrons"))
-                pawn.genes.SetXenotype(Utility_XenotypeManagement.Named("EMNC_Necrons"));
+            if (ModsConfig.BiotechActive && ModsConfig.IsActive("emitbreaker.MIM.WH40k.NC.Core") && pawn.genes.Xenotype != Utility_XenotypeManager.XenotypeDefNamed("EMNC_Necrons"))
+                pawn.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMNC_Necrons"));
             Severity = 1;
         }
         private static void DoCosmetic(Pawn EMNC_Necron)

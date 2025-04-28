@@ -33,7 +33,7 @@ namespace MIM40kFactions
                 Pawn pawn = parent as Pawn;
                 if (pawn != null)
                 {
-                    if (!Utility_PawnValidator.IsPawnDeadValidator(pawn))
+                    if (!Utility_PawnValidationManager.IsPawnDeadValidator(pawn))
                     {
                         return false;
                     }

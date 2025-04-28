@@ -75,7 +75,7 @@ namespace MIM40kFactions
             }
 
             // ✅ Multiplier from BodySnatcherExtension
-            BodySnatcherExtension bodySnatcher = Utility_GetModExtension.GetBodySnatcherExtension(p);
+            BodySnatcherExtension bodySnatcher = Utility_BodySnatcherManager.GetBodySnatcherExtension(p);
             if (bodySnatcher != null)
             {
                 float drawFactor = 0f;

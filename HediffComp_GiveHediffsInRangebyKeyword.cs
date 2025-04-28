@@ -17,7 +17,7 @@ namespace MIM40kFactions
 
         public override void CompPostTick(ref float severityAdjustment)
         {
-            if (!Utility_PawnValidator.IsPawnDeadValidator(parent.pawn))
+            if (!Utility_PawnValidationManager.IsPawnDeadValidator(parent.pawn))
             {
                 if (parent != null)
                 {
@@ -92,25 +92,25 @@ namespace MIM40kFactions
         private bool PawnValidator(Pawn target)
         {
             // Faction Validation
-            if (!Utility_PawnValidator.FactionValidator(target, parent.pawn, Props.onlyTargetNotinSameFactions, Props.onlyTargetHostileFactions, Props.onlyPawnsInSameFaction, Props.onlyTargetNonPlayerFactions))
+            if (!Utility_PawnValidationManager.FactionValidator(target, parent.pawn, Props.onlyTargetNotinSameFactions, Props.onlyTargetHostileFactions, Props.onlyPawnsInSameFaction, Props.onlyTargetNonPlayerFactions))
             {
                 return false;
             }
 
             // Xenotype Validation if Biotech is active
-            if (!Utility_PawnValidator.XenotypeValidator(target, Props.excludeXenotype, Props.excludeXenotypes, Props.targetXenotype, Props.targetXenotypes))
+            if (!Utility_PawnValidationManager.XenotypeValidator(target, Props.excludeXenotype, Props.excludeXenotypes, Props.targetXenotype, Props.targetXenotypes))
             {
                 return false;
             }
 
             // Hediff Validation
-            if (!Utility_PawnValidator.HediffValidator(target, Props.requiredHediff, Props.requiredHediffs))
+            if (!Utility_PawnValidationManager.HediffValidator(target, Props.requiredHediff, Props.requiredHediffs))
             {
                 return false;
             }
 
             // Keyword Validation
-            if (Props.useKeyword && !Utility_PawnValidator.KeywordValidator(target, Props.keywords, Props.isVehicle, Props.isMonster, Props.isPsychic, Props.isPsyker, Props.isCharacter, Props.isAstartes, Props.isInfantry, Props.isWalker, Props.isLeader, Props.isFly, Props.isAircraft, Props.isChaos, Props.isDaemon, Props.isDestroyerCult, Props.isHereticAstartes))
+            if (Props.useKeyword && !Utility_PawnValidationManager.KeywordValidator(target, Props.keywords, Props.isVehicle, Props.isMonster, Props.isPsychic, Props.isPsyker, Props.isCharacter, Props.isAstartes, Props.isInfantry, Props.isWalker, Props.isLeader, Props.isFly, Props.isAircraft, Props.isChaos, Props.isDaemon, Props.isDestroyerCult, Props.isHereticAstartes))
             {
                 return false;
             }

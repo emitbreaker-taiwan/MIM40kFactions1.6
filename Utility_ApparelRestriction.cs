@@ -104,7 +104,7 @@ namespace MIM40kFactions
                             }
                             else
                             {
-                                if (ModsConfig.IsActive("Phonicmas.40kGenes") && pawn.genes.HasActiveGene(Utility_GeneDefManagement.Named("BEWH_BlackCarapace")) && modExtension.requiredHediffDefs.Contains(HediffDef.Named("EMWH_BlackCarapace")))
+                                if (ModsConfig.IsActive("Phonicmas.40kGenes") && pawn.genes.HasActiveGene(Utility_GeneManager.GeneDefNamed("BEWH_BlackCarapace")) && modExtension.requiredHediffDefs.Contains(HediffDef.Named("EMWH_BlackCarapace")))
                                 {
                                     return true;
                                 }
@@ -312,7 +312,7 @@ namespace MIM40kFactions
                             }
                             else
                             {
-                                if (ModsConfig.IsActive("Phonicmas.40kGenes") && pawn.genes.HasActiveGene(Utility_GeneDefManagement.Named("BEWH_BlackCarapace")) && modExtension.requiredHediffDefs.Contains(HediffDef.Named("EMWH_BlackCarapace")))
+                                if (ModsConfig.IsActive("Phonicmas.40kGenes") && pawn.genes.HasActiveGene(Utility_GeneManager.GeneDefNamed("BEWH_BlackCarapace")) && modExtension.requiredHediffDefs.Contains(HediffDef.Named("EMWH_BlackCarapace")))
                                 {
                                     return true;
                                 }

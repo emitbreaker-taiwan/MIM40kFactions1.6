@@ -10,49 +10,51 @@ namespace MIM40kFactions
 {
     public class Utility_WolfenMutation
     {
+        private static readonly Random rand = new Random();
         public static void DoMutationConsideration(Pawn EMSM_SWvictim)
         {
             if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.AA.SW"))
             {
-                Faction homeFaction = EMSM_SWvictim.HomeFaction;
-                BackstoryDef childhood = EMSM_SWvictim.story.Childhood;
-                BackstoryDef adulthood = EMSM_SWvictim.story.Adulthood;
+                return;
+            }
+            
+            Faction homeFaction = EMSM_SWvictim.HomeFaction;
+            BackstoryDef childhood = EMSM_SWvictim.story.Childhood;
+            BackstoryDef adulthood = EMSM_SWvictim.story.Adulthood;
 
-                if (EMSM_SWvictim.HasPsylink)
-                {
-                    DoMakeSpaceWolves(EMSM_SWvictim, homeFaction, childhood, adulthood);
-                    return;
-                }
+            if (EMSM_SWvictim.HasPsylink)
+            {
+                DoMakeSpaceWolves(EMSM_SWvictim, homeFaction, childhood, adulthood);
+                return;
+            }
 
-                Random rand = new Random();
-                int mutationSeed = rand.Next(1, 6);
+            int mutationSeed = rand.Next(1, 6);
 
-                if (mutationSeed > 5)
+            if (mutationSeed > 5)
+            {
+                if (ModsConfig.BiotechActive)
                 {
-                    if (ModsConfig.BiotechActive)
-                    {
-                        DoMakeWulfen(EMSM_SWvictim, homeFaction, childhood, adulthood);
-                    }
-                    return;
+                    DoMakeWulfen(EMSM_SWvictim, homeFaction, childhood, adulthood);
                 }
-                if (mutationSeed > 3)
+                return;
+            }
+            if (mutationSeed > 3)
+            {
+                if (ModsConfig.BiotechActive)
                 {
-                    if (ModsConfig.BiotechActive)
-                    {
-                        DoMakeLongFang(EMSM_SWvictim, homeFaction, childhood, adulthood);
-                    }
-                    return;
+                    DoMakeLongFang(EMSM_SWvictim, homeFaction, childhood, adulthood);
                 }
-                if (mutationSeed > 0)
-                {
-                    DoMakeSpaceWolves(EMSM_SWvictim, homeFaction, childhood, adulthood);
-                    return;
-                }
-                else
-                {
-                    Log.Error("Pawn has no Space Wolves Gene-Seed in props");
-                    return;
-                }
+                return;
+            }
+            if (mutationSeed > 0)
+            {
+                DoMakeSpaceWolves(EMSM_SWvictim, homeFaction, childhood, adulthood);
+                return;
+            }
+            else
+            {
+                Log.Error("Pawn has no Space Wolves Gene-Seed in props");
+                return;
             }
         }
         private static void DoMakeSpaceWolves(Pawn EMSM_SWvictim, Faction homeFaction, BackstoryDef childhood, BackstoryDef adulthood)
@@ -60,7 +62,7 @@ namespace MIM40kFactions
             if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.AA.SW"))
             {
                 if (ModsConfig.BiotechActive == true)
-                    EMSM_SWvictim.genes.SetXenotype(Utility_XenotypeManagement.Named("EMSM_Astartes_SpaceWolves"));
+                    EMSM_SWvictim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMSM_Astartes_SpaceWolves"));
 
                 EMSM_SWvictim.kindDef = PawnKindDef.Named("EMSM_Mutation_SpaceWolves");
                 SetPawnBaseStats(EMSM_SWvictim, homeFaction, childhood, adulthood);
@@ -75,7 +77,7 @@ namespace MIM40kFactions
             if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.AA.SW"))
             {
                 if (ModsConfig.BiotechActive == true)
-                    EMSM_SWvictim.genes.SetXenotype(Utility_XenotypeManagement.Named("EMSM_Astartes_Wulfen"));
+                    EMSM_SWvictim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMSM_Astartes_Wulfen"));
 
                 EMSM_SWvictim.kindDef = PawnKindDef.Named("EMSM_Astartes_Wulfen");
                 SetPawnBaseStats(EMSM_SWvictim, homeFaction, childhood, adulthood);
@@ -95,7 +97,7 @@ namespace MIM40kFactions
             if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.AA.SW"))
             {
                 if (ModsConfig.BiotechActive == true)
-                    EMSM_SWvictim.genes.SetXenotype(Utility_XenotypeManagement.Named("EMSM_Astartes_LongFang"));
+                    EMSM_SWvictim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMSM_Astartes_LongFang"));
 
                 EMSM_SWvictim.kindDef = PawnKindDef.Named("EMSM_Mutation_Longfang");
                 SetPawnBaseStats(EMSM_SWvictim, homeFaction, childhood, adulthood);
@@ -143,7 +145,7 @@ namespace MIM40kFactions
                 BodySnatcherExtension modExtension = EMSM_SWvictim.kindDef.GetModExtension<BodySnatcherExtension>();
                 if (modExtension != null)
                 {
-                    EMSM_SWvictim.story.TryGetRandomHeadFromSet((IEnumerable<HeadTypeDef>)Utility_GeneDefManagement.Named("EMSM_Jaw_WulfenHead").forcedHeadTypes);
+                    EMSM_SWvictim.story.TryGetRandomHeadFromSet((IEnumerable<HeadTypeDef>)Utility_GeneManager.GeneDefNamed("EMSM_Jaw_WulfenHead").forcedHeadTypes);
                 }
                 EMSM_SWvictim.Drawer.renderer.SetAllGraphicsDirty();
             }

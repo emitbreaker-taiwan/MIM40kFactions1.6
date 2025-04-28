@@ -21,7 +21,7 @@ namespace MIM40kFactions
             base.CompPostTick(ref severityAdjustment);
             if (!flag)
             {
-                if (!Utility_PawnValidator.IsPawnDeadValidator(parent.pawn))
+                if (!Utility_PawnValidationManager.IsPawnDeadValidator(parent.pawn))
                 {
                     return;
                 }

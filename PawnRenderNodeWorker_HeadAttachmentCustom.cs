@@ -38,7 +38,7 @@ namespace MIM40kFactions
                 vector *= node.Props.drawData.ScaleFor(parms.pawn);
             }
 
-            BodySnatcherExtension modExtension = Utility_GetModExtension.GetBodySnatcherExtension(parms.pawn);
+            BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(parms.pawn);
 
             if (modExtension != null)
             {

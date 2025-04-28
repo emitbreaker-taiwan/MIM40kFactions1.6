@@ -8,11 +8,11 @@ using Verse;
 
 namespace MIM40kFactions
 {
-    public class Utility_GeneDefManagement
+    public class Utility_XenotypeManager
     {
-        public static GeneDef Named(string defName)
+        public static XenotypeDef XenotypeDefNamed(string defName)
         {
-            return DefDatabase<GeneDef>.GetNamed(defName);
+            return DefDatabase<XenotypeDef>.GetNamed(defName);
         }
     }
 }

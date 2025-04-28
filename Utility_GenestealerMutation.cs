@@ -19,7 +19,7 @@ namespace MIM40kFactions
                 if (EMGC_victim.HasPsylink == true)
                 {
                     EMGC_victim.kindDef = PawnKindDef.Named("EMGC_Mutation_Magus");
-                    EMGC_victim.genes.SetXenotype(Utility_XenotypeManagement.Named("EMGC_Magus"));
+                    EMGC_victim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMGC_Magus"));
                     return;
                 }
 
@@ -31,7 +31,7 @@ namespace MIM40kFactions
                 if (firstGen != null)
                 {
                     EMGC_victim.kindDef = PawnKindDef.Named("EMGC_Mutation_BroodBrother");
-                    EMGC_victim.genes.SetXenotype(Utility_XenotypeManagement.Named("EMGC_BroodBrothers"));
+                    EMGC_victim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMGC_BroodBrothers"));
                     return;
                 }
 
@@ -42,28 +42,28 @@ namespace MIM40kFactions
                     if (mutationSeed > 89f)
                     {
                         EMGC_victim.kindDef = PawnKindDef.Named("EMGC_Mutation_AberrantHypermorph");
-                        EMGC_victim.genes.SetXenotype(Utility_XenotypeManagement.Named("EMGC_AberrantHypermorph"));
+                        EMGC_victim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMGC_AberrantHypermorph"));
                         return;
                     }
 
                     if (mutationSeed > 74f)
                     {
                         EMGC_victim.kindDef = PawnKindDef.Named("EMGC_Mutation_Aberrant");
-                        EMGC_victim.genes.SetXenotype(Utility_XenotypeManagement.Named("EMGC_Aberrant"));
+                        EMGC_victim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMGC_Aberrant"));
                         return;
                     }
 
                     if (mutationSeed > 54f)
                     {
                         EMGC_victim.kindDef = PawnKindDef.Named("EMGC_Mutation_AcolyteIconward");
-                        EMGC_victim.genes.SetXenotype(Utility_XenotypeManagement.Named("EMGC_AcolyteIconward"));
+                        EMGC_victim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMGC_AcolyteIconward"));
                         return;
                     }
 
                     else
                     {
                         EMGC_victim.kindDef = PawnKindDef.Named("EMGC_Mutation_Acolyte");
-                        EMGC_victim.genes.SetXenotype(Utility_XenotypeManagement.Named("EMGC_AcolyteHybrids"));
+                        EMGC_victim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMGC_AcolyteHybrids"));
                         return;
                     }
                 }
@@ -71,7 +71,7 @@ namespace MIM40kFactions
                 if (thirdGen != null)
                 {
                     EMGC_victim.kindDef = PawnKindDef.Named("EMGC_Mutation_Neophyte");
-                    EMGC_victim.genes.SetXenotype(Utility_XenotypeManagement.Named("EMGC_NeophyteHybrids"));
+                    EMGC_victim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMGC_NeophyteHybrids"));
                     return;
                 }
 
@@ -89,13 +89,13 @@ namespace MIM40kFactions
                     {
                         EMGC_victim.apparel.DropAllOrMoveAllToInventory();
 
-                        Utility_NonHumanlikeMutation.RespawnHumanlike(EMGC_victim, PawnKindDef.Named("EMGC_Mutation_GenestealerPatriarch"), targetFaction, Utility_XenotypeManagement.Named("EMGC_Patriarch"), null, EMGC_victim.ideo.Ideo, EMGC_victim.story.Childhood, Utility_BackstoryManagement.Named("EMGC_Adulthood_Patriarch"));
+                        Utility_NonHumanlikeMutation.RespawnHumanlike(EMGC_victim, PawnKindDef.Named("EMGC_Mutation_GenestealerPatriarch"), targetFaction, Utility_XenotypeManager.XenotypeDefNamed("EMGC_Patriarch"), null, EMGC_victim.ideo.Ideo, EMGC_victim.story.Childhood, Utility_BackstoryManagement.Named("EMGC_Adulthood_Patriarch"));
                         return;
                     }
                     else
                     {
                         EMGC_victim.apparel.DropAllOrMoveAllToInventory();
-                        Utility_NonHumanlikeMutation.RespawnHumanlike(EMGC_victim, PawnKindDef.Named("EMGC_Mutation_PurestrainGenestealer"), targetFaction, Utility_XenotypeManagement.Named("EMGC_PurestrainGenestealer"), null, EMGC_victim.ideo.Ideo, EMGC_victim.story.Childhood, Utility_BackstoryManagement.Named("EMGC_Adulthood_Purestrain"));
+                        Utility_NonHumanlikeMutation.RespawnHumanlike(EMGC_victim, PawnKindDef.Named("EMGC_Mutation_PurestrainGenestealer"), targetFaction, Utility_XenotypeManager.XenotypeDefNamed("EMGC_PurestrainGenestealer"), null, EMGC_victim.ideo.Ideo, EMGC_victim.story.Childhood, Utility_BackstoryManagement.Named("EMGC_Adulthood_Purestrain"));
                         return;
                     }
                 }

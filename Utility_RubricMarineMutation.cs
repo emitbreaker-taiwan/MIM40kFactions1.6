@@ -70,7 +70,7 @@ namespace MIM40kFactions
             if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.TS"))
             {
                 if (ModsConfig.BiotechActive == true)
-                    EMCM_TSvictim.genes.SetXenotype(Utility_XenotypeManagement.Named("EMCM_HereticAstartes_ThousandSons"));
+                    EMCM_TSvictim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMCM_HereticAstartes_ThousandSons"));
 
                 EMCM_TSvictim.kindDef = PawnKindDef.Named("EMTS_Mutation_Sorcerer");
                 SetPawnBaseStats(EMCM_TSvictim, homeFaction, childhood, adulthood);
@@ -88,7 +88,7 @@ namespace MIM40kFactions
             if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.TS"))
             {
                 if (ModsConfig.BiotechActive == true)
-                    EMCM_TSvictim.genes.SetXenotype(Utility_XenotypeManagement.Named("EMCM_HereticAstartes"));
+                    EMCM_TSvictim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMCM_HereticAstartes"));
 
                 EMCM_TSvictim.kindDef = PawnKindDef.Named("EMTS_Mutation_RubricMarine");
                 SetPawnBaseStats(EMCM_TSvictim, homeFaction, childhood, adulthood);

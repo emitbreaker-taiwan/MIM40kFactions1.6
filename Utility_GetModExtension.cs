@@ -10,45 +10,6 @@ namespace MIM40kFactions
 {
     public class Utility_GetModExtension
     {
-        public static BodySnatcherExtension GetBodySnatcherExtension(Pawn pawn)
-        {
-            if (pawn == null || pawn.IsDessicated() || !pawn.RaceProps.Humanlike)
-            {
-                return null;
-            }
-
-            BodySnatcherExtension modExtension = pawn.def.GetModExtension<BodySnatcherExtension>();
-
-            if (modExtension == null && pawn.kindDef != null)
-            {
-                modExtension = pawn.kindDef.GetModExtension<BodySnatcherExtension>();
-            }
-
-            if (ModsConfig.BiotechActive && modExtension == null && pawn.genes.GenesListForReading != null)
-            {
-                foreach (Gene gene in pawn.genes.GenesListForReading)
-                {
-                    if (gene.Active && gene.def.GetModExtension<BodySnatcherExtension>() != null)
-                    {
-                        modExtension = gene.def.GetModExtension<BodySnatcherExtension>();
-                    }
-                }
-            }
-
-            if ((modExtension == null || (modExtension != null && modExtension.useClothing)) && pawn.apparel.WornApparel != null)
-            {
-                foreach (Thing apparel in pawn.apparel.WornApparel)
-                {
-                    if (apparel.def.GetModExtension<BodySnatcherExtension>() != null)
-                    {
-                        modExtension = apparel.def.GetModExtension<BodySnatcherExtension>();
-                    }
-                }
-            }
-
-            return modExtension;
-        }
-
         public static MassCarriedExtension GetMassCarriedExtension(Pawn pawn)
         {
             if (pawn == null || pawn.IsDessicated())

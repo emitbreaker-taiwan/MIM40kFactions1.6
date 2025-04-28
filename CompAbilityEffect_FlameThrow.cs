@@ -29,7 +29,7 @@ namespace MIM40kFactions
             int damAmount = Props.damAmount;
             if (Props.damageDef == null)
                 Props.damageDef = DamageDefOf.Flame;
-            if (Props.useKeyword && Utility_PawnValidator.KeywordValidator(target.Pawn, Props.keywords, Props.isVehicle, Props.isMonster, Props.isPsychic, Props.isPsyker, Props.isCharacter, Props.isAstartes, Props.isInfantry, Props.isWalker, Props.isLeader, Props.isFly, Props.isAircraft, Props.isChaos, Props.isDaemon, Props.isDestroyerCult, Props.isHereticAstartes))
+            if (Props.useKeyword && Utility_PawnValidationManager.KeywordValidator(target.Pawn, Props.keywords, Props.isVehicle, Props.isMonster, Props.isPsychic, Props.isPsyker, Props.isCharacter, Props.isAstartes, Props.isInfantry, Props.isWalker, Props.isLeader, Props.isFly, Props.isAircraft, Props.isChaos, Props.isDaemon, Props.isDestroyerCult, Props.isHereticAstartes))
             {
                 int rand = Rand.RangeInclusive(1, 6);
                 if (Props.keywordBonus > 0 && Props.keywordBonus <= rand)

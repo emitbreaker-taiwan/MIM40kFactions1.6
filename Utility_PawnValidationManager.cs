@@ -8,8 +8,18 @@ using static HarmonyLib.Code;
 
 namespace MIM40kFactions
 {
-    public class Utility_PawnValidator
+    public class Utility_PawnValidationManager
     {
+        public static bool IsNotDessicatedHumanlikePawn(Pawn pawn)
+        {
+            if (pawn == null || pawn.IsDessicated() || !pawn.RaceProps.Humanlike || pawn.def == null || pawn.RaceProps == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public static bool IsPawnDeadValidator(Pawn pawn, bool checkUnconciousness = false)
         {
             if (pawn == null || pawn.Dead || pawn.health == null || pawn.Map == null)
@@ -27,6 +37,7 @@ namespace MIM40kFactions
 
             return true;
         }
+
         public static bool FactionValidator(Pawn target, Pawn caster, bool onlyTargetNotinSameFactions = false, bool onlyTargetHostileFactions = false, bool onlyPawnsInSameFaction = false, bool onlyTargetNonPlayerFactions = false)
         {
             if (onlyTargetNotinSameFactions && ((target.Faction == caster.Faction) || (target.Faction == caster.Faction)))
@@ -373,7 +384,7 @@ namespace MIM40kFactions
             }
             if (ModsConfig.BiotechActive && ModsConfig.IsActive("Phonicmas.40kGenes"))
             {
-                if (target.genes.HasXenogene(Utility_GeneDefManagement.Named("BEWH_BlackCarapace")))
+                if (target.genes.HasXenogene(Utility_GeneManager.GeneDefNamed("BEWH_BlackCarapace")))
                 {
                     return true;
                 }
@@ -418,32 +429,31 @@ namespace MIM40kFactions
                     return true;
                 }
             }
-            if (ModsConfig.BiotechActive && ModsConfig.IsActive("Phonicmas.40kGenes") && target.genes.HasXenogene(Utility_GeneDefManagement.Named("BEWH_BlackCarapace")))
+            if (ModsConfig.BiotechActive && ModsConfig.IsActive("Phonicmas.40kGenes") && target.genes.HasXenogene(Utility_GeneManager.GeneDefNamed("BEWH_BlackCarapace")))
             {
-                if (target.genes.HasXenogene(Utility_GeneDefManagement.Named("BEWH_KhorneMark")))
+                if (target.genes.HasXenogene(Utility_GeneManager.GeneDefNamed("BEWH_KhorneMark")))
                 {
                     return true;
                 }
-                if (target.genes.HasXenogene(Utility_GeneDefManagement.Named("BEWH_NurgleMark")))
+                if (target.genes.HasXenogene(Utility_GeneManager.GeneDefNamed("BEWH_NurgleMark")))
                 {
                     return true;
                 }
-                if (target.genes.HasXenogene(Utility_GeneDefManagement.Named("BEWH_TzeentchMark")))
+                if (target.genes.HasXenogene(Utility_GeneManager.GeneDefNamed("BEWH_TzeentchMark")))
                 {
                     return true;
                 }
-                if (target.genes.HasXenogene(Utility_GeneDefManagement.Named("BEWH_SlaaneshMark")))
+                if (target.genes.HasXenogene(Utility_GeneManager.GeneDefNamed("BEWH_SlaaneshMark")))
                 {
                     return true;
                 }
-                if (target.genes.HasXenogene(Utility_GeneDefManagement.Named("BEWH_UndividedMark")))
+                if (target.genes.HasXenogene(Utility_GeneManager.GeneDefNamed("BEWH_UndividedMark")))
                 {
                     return true;
                 }
             }
             return false;
         }
-
     }
 
 }

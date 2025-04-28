@@ -22,7 +22,7 @@ namespace MIM40kFactions
                 return;
             }
 
-            if (!Utility_PawnValidator.IsPawnDeadValidator(pawn))
+            if (!Utility_PawnValidationManager.IsPawnDeadValidator(pawn))
             {
                 return;
             }

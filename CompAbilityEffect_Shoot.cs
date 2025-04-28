@@ -111,7 +111,7 @@ namespace MIM40kFactions
 
             // 🎉 Keyword explosion bonus (only on last shot)
             if (burstShotsLeft == 1 && Props.useKeyword &&
-                Utility_PawnValidator.KeywordValidator(
+                Utility_PawnValidationManager.KeywordValidator(
                     currentBurstTarget.Pawn, Props.keywords,
                     Props.isVehicle, Props.isMonster, Props.isPsychic, Props.isPsyker, Props.isCharacter,
                     Props.isAstartes, Props.isInfantry, Props.isWalker, Props.isLeader,
