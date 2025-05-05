@@ -31,7 +31,7 @@ namespace MIM40kFactions
                     return 0;
                 }
 
-                return Utility_MapPawnCount.GetThingCountByDef(PropsSpawner.targetRaceDefstoCount.FirstOrDefault(), parent.Map);
+                return Utility_MapPawnCount.GetThingCountByDefs(PropsSpawner.targetRaceDefstoCount, parent.Map);
             }
         }
 
@@ -49,7 +49,7 @@ namespace MIM40kFactions
                 // Only cache and calculate if the mod is active and `countSpore` is true
                 if (countSpore)
                 {
-                    return Utility_MapPawnCount.GetThingCountByDef(PropsSpawner.thingDefsToSpawn.FirstOrDefault(), parent.Map);
+                    return Utility_MapPawnCount.GetThingCountByDefs(PropsSpawner.thingDefsToSpawn, parent.Map);
                 }
 
                 return 0;

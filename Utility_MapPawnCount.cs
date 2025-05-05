@@ -33,6 +33,30 @@ namespace MIM40kFactions
             return cachedThingCountByDef[def];
         }
 
+        // ⚡ New: sums counts for multiple defs by re-using per-def cache
+        /// <summary>
+        /// Outline: returns the total number of things whose def is in `defs`, using
+        /// the existing per-def cache in GetThingCountByDef.
+        /// </summary>
+        public static int GetThingCountByDefs(IEnumerable<ThingDef> defs, Map map)
+        {
+            if (defs == null || map == null)
+                return 0;
+
+            int totalCount = 0;
+            foreach (var def in defs)
+            {
+                totalCount += GetThingCountByDef(def, map);
+            }
+            return totalCount;
+        }
+
+        // ⚡ New overload for convenience
+        public static int GetThingCountByDefs(Map map, params ThingDef[] defs)
+        {
+            return GetThingCountByDefs((IEnumerable<ThingDef>)defs, map);
+        }
+
         // Sync method for clearing cache to ensure consistency
         [Multiplayer.SyncMethod]
         public static void ClearCache()

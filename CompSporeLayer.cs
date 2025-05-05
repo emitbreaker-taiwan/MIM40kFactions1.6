@@ -53,7 +53,7 @@ namespace MIM40kFactions
                 // Use the utility method for pawn count with cached results
                 if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.OK.Core") && maxOrkoidCount > 0 && parent.Map != null)
                 {
-                    int orkCount = Utility_MapPawnCount.GetThingCountByDef(Props.targetRaceDefstoCount.FirstOrDefault(), parent.Map);
+                    int orkCount = Utility_MapPawnCount.GetThingCountByDefs(Props.targetRaceDefstoCount, parent.Map);
                     if (orkCount >= maxOrkoidCount)
                     {
                         return false;

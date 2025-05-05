@@ -31,15 +31,9 @@ namespace MIM40kFactions
                     cachedPawnCountTick = Find.TickManager.TicksGame;
 
                     // Use the utility method to get the pawn count
-                    cachedMapTargetPawnKindCount = Utility_MapPawnCount.GetThingCountByDef(Props.targetRaceDefstoCount.FirstOrDefault(), parent.Map);
+                    cachedMapTargetPawnKindCount = Utility_MapPawnCount.GetThingCountByDefs(Props.targetRaceDefstoCount, parent.Map);
                 }
                 return cachedMapTargetPawnKindCount;
-
-                //if (Props.targetRaceDefstoCount == null)
-                //{
-                //    return 0;
-                //}
-                //return parent.Map.mapPawns.AllPawns.Count<Pawn>((Func<Pawn, bool>)(x => Props.targetRaceDefstoCount.Contains(x.def)));
             }
         }
 

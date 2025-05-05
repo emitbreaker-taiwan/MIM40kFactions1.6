@@ -221,7 +221,7 @@ namespace MIM40kFactions
                 return 0;
             }
 
-            return Utility_MapPawnCount.GetThingCountByDef(Props.grotRaceThingDefs.FirstOrDefault(), parent.Map);
+            return Utility_MapPawnCount.GetThingCountByDefs(Props.grotRaceThingDefs, parent.Map);
         }
 
         private int GetMapOrkCount()
@@ -231,7 +231,7 @@ namespace MIM40kFactions
                 return 0;
             }
 
-            return Utility_MapPawnCount.GetThingCountByDef(Props.orkRaceThingDefs.FirstOrDefault(), parent.Map);
+            return Utility_MapPawnCount.GetThingCountByDefs(Props.orkRaceThingDefs, parent.Map);
         }
 
         public override bool AllowStackWith(Thing other)
