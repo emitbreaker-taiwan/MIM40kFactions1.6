@@ -22,11 +22,11 @@ namespace MIM40kFactions
 
             foreach (ThingDef def in DefDatabase<ThingDef>.AllDefsListForReading)
             {
-                BodySnatcherExtension ext = def.GetModExtension<BodySnatcherExtension>();
-                if (ext != null)
+                BodySnatcherExtension modExtension = def.GetModExtension<BodySnatcherExtension>();
+                if (modExtension != null)
                 {
-                    if (ext.drawSize == default) ext.drawSize = Vector2.one;
-                    if (ext.headdrawSize == default) ext.headdrawSize = Vector2.one;
+                    if (modExtension.drawSize == default) modExtension.drawSize = Vector2.one;
+                    if (modExtension.headdrawSize == default) modExtension.headdrawSize = Vector2.one;
                     // Optional: Validate any other properties
                 }
             }

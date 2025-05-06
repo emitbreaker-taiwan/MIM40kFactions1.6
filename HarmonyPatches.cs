@@ -127,7 +127,7 @@ namespace MIM40kFactions
             //harmony.Patch(AccessTools.Method(typeof(PawnRenderNode_Head), "GraphicFor", new System.Type[1] { typeof(Pawn) }), new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("GraphicForHeadPreFix")));
             harmony.Patch(AccessTools.Method(typeof(PawnRenderNode_Head), "GraphicFor", new System.Type[1] { typeof(Pawn) }), new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("GraphicForHeadPreFix")), new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("GraphicForHeadPostfix")));
             harmony.Patch(AccessTools.Method(typeof(PawnRenderNodeWorker_Eye), "ScaleFor", new System.Type[2] { typeof(PawnRenderNode), typeof(PawnDrawParms) }), postfix: new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("ScaleForEyesPostFix")));
-            //harmony.Patch(AccessTools.Method(typeof(PawnRenderNodeWorker_Eye), "OffsetFor", new System.Type[3] { typeof(PawnRenderNode), typeof(PawnDrawParms), typeof(Vector3).MakeByRefType() }), postfix: new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("OffsetForEyesPostFix")));
+            harmony.Patch(AccessTools.Method(typeof(PawnRenderNodeWorker_Eye), "OffsetFor", new System.Type[3] { typeof(PawnRenderNode), typeof(PawnDrawParms), typeof(Vector3).MakeByRefType() }), postfix: new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("OffsetForEyesPostFix")));
             harmony.Patch(AccessTools.Method(typeof(PawnGenerator), "GetXenotypeForGeneratedPawn", new System.Type[1] { typeof(PawnGenerationRequest) }), postfix: new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("GetXenotypeForGeneratedPawnPostfix")));
             harmony.Patch(AccessTools.Method(typeof(HumanlikeMeshPoolUtility), "HumanlikeHeadWidthForPawn", new System.Type[1] { typeof(Pawn) }), postfix: new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("HumanlikeHeadWidthForPawnPostFix")));
             harmony.Patch(AccessTools.Method(typeof(HumanlikeMeshPoolUtility), "HumanlikeBodyWidthForPawn", new System.Type[1] { typeof(Pawn) }), postfix: new HarmonyMethod(typeof(EMWH_PawnBodySnatcher).GetMethod("HumanlikeBodyWidthForPawnPostFix")));
@@ -246,18 +246,24 @@ namespace MIM40kFactions
             // ✅ Apply appearance modifications
             if (pawn.style != null)
             {
-                if (modExtension.noBeard)
-                    pawn.style.beardDef = BeardDefOf.NoBeard;
-                if (modExtension.noFaceTattoo)
-                    pawn.style.FaceTattoo = TattooDefOf.NoTattoo_Face;
-                if (modExtension.noBodyTattoo)
+                if (modExtension.invisibleHead)
+                {
+                    if (modExtension.noBeard)
+                        pawn.style.beardDef = BeardDefOf.NoBeard;
+                    if (modExtension.noFaceTattoo)
+                        pawn.style.FaceTattoo = TattooDefOf.NoTattoo_Face;
+                }
+                if (modExtension.noBodyTattoo && !modExtension.pathBody.NullOrEmpty())
                     pawn.style.BodyTattoo = TattooDefOf.NoTattoo_Body;
             }
 
-            if (pawn.story != null)
+            if (pawn.story != null && modExtension.invisibleHead && modExtension.noHair)
             {
-                if (modExtension.noHair)
+                // only switch to Bald if not already set, so you don’t stomp user changes repeatedly
+                if (pawn.story.hairDef == null || pawn.story.hairDef != HairDefOf.Bald)
+                {
                     pawn.story.hairDef = HairDefOf.Bald;
+                }
             }
         }
 
@@ -274,7 +280,11 @@ namespace MIM40kFactions
                 return;
 
             Shader shader = ShaderUtility.GetSkinShader(pawn);
-            Vector2 drawSize = modExtension.drawSize == default ? Vector2.one : modExtension.drawSize;
+            Vector2 drawSize = Vector2.one;
+            if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core"))
+            {
+                drawSize = modExtension.drawSize == default ? Vector2.one : modExtension.drawSize;
+            }
             Color color = Color.white;
 
             if (modExtension.useGeneSkinColor)
@@ -962,49 +972,52 @@ namespace MIM40kFactions
         /// <summary>
         /// Old OffsetForEyesPostFix for just in case
         /// </summary>
-        //[HarmonyPostfix]
-        //public static void OffsetForEyesPostFix(PawnRenderNode node, PawnDrawParms parms, ref Vector3 __result)
-        //{
-        //    if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(parms.pawn))
-        //    {
-        //        return;
-        //    }
+        [HarmonyPostfix]
+        public static void OffsetForEyesPostFix(PawnRenderNode node, PawnDrawParms parms, ref Vector3 __result)
+        {
+            if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(parms.pawn))
+            {
+                return;
+            }
 
-        //    BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(parms.pawn);
+            BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(parms.pawn);
 
-        //    if (modExtension == null)
-        //    {
-        //        return;
-        //    }
+            if (modExtension == null)
+            {
+                return;
+            }
 
-        //    if (modExtension.invisibleHead)
-        //    {
-        //        return;
-        //    }
+            if (modExtension.invisibleHead)
+            {
+                return;
+            }
 
-        //    if (modExtension == null || modExtension.drawSize.x < 0)
-        //    {
-        //        return;
-        //    }
+            if (modExtension == null || modExtension.drawSize.x < 0)
+            {
+                return;
+            }
 
-        //    if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.useVEFCoreScaler)
-        //    {
-        //        return;
-        //    }
+            if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core"))
+            {
+                return;
+            }
 
-        //    if (modExtension.drawSize == null || !Utility_GeneManager.GeneValidator(parms.pawn, modExtension))
-        //    {
-        //        return;
-        //    }
+            if (modExtension.drawSize == null || !Utility_GeneManager.GeneValidator(parms.pawn, modExtension))
+            {
+                return;
+            }
 
-        //    if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core") && modExtension.drawSize.x > 1.3f)
-        //    {
-        //        modExtension.drawSize.x = 1.3f;
-        //    }
+            float multiplier = 1f;
 
-        //    Vector3 originalSize = __result;
-        //    __result = new Vector3(originalSize.x * modExtension.drawSize.x, originalSize.y * modExtension.drawSize.x, originalSize.z * modExtension.drawSize.x);
-        //}
+            multiplier = modExtension.drawSize.x;
+            if (modExtension.headdrawSize != null && modExtension.headdrawSize.x > 0f)
+            {
+                multiplier = modExtension.headdrawSize.x;
+            }
+
+            Vector3 originalSize = __result;
+            __result = new Vector3(originalSize.x * multiplier, originalSize.y * multiplier, originalSize.z * multiplier);
+        }
 
         /// <summary>
         /// Old SpawnFleckPreFix for just in case
@@ -1054,96 +1067,246 @@ namespace MIM40kFactions
         public static void HumanlikeHeadWidthForPawnPostFix(Pawn pawn, ref float __result)
         {
             if (!pawn.RaceProps.Humanlike)
+                return;
+
+            // Grab your body-snatcher extension once
+            var modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(pawn);
+
+            if (modExtension == null)
             {
                 return;
-            }
+            }            
 
-            float scaling = Utility_BodySnatcherManager.GetScaling(pawn, isHeadPart: true);
-            __result *= scaling;
+            if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core"))
+            {
+                // ─── VFE is enabled: use *old* drawSize logic ────────────
+                float multiplier = 1f;
+
+                // Only apply if drawSize set and gene rules permit
+                if (modExtension.drawSize == null || !Utility_GeneManager.GeneValidator(pawn, modExtension))
+                {
+                    return;
+                }
+
+                multiplier = modExtension.drawSize.x;
+                if (modExtension.headdrawSize != null && modExtension.headdrawSize.x > 0f)
+                {
+                    multiplier = modExtension.headdrawSize.x;
+                }
+
+                __result *= multiplier;
+            }
+            else
+            {
+                // ─── VFE is **not** enabled: use your *new* head-scaling logic ───
+                float scaling = Utility_BodySnatcherManager.GetScaling(pawn, isHeadPart: true);
+                __result *= scaling;
+            }
         }
 
         [HarmonyPostfix]
         public static void HumanlikeBodyWidthForPawnPostFix(Pawn pawn, ref float __result)
         {
             if (!pawn.RaceProps.Humanlike)
+                return;
+
+            // Grab your body-snatcher extension once
+            var modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(pawn);
+
+            if (modExtension == null)
             {
                 return;
             }
 
-            float scaling = Utility_BodySnatcherManager.GetScaling(pawn, isHeadPart: false);
-            __result *= scaling;
+            if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core"))
+            {
+                // ─── VFE is enabled: use *old* drawSize logic ────────────
+                float multiplier = 1f;
+
+                // Only apply if drawSize set and gene rules permit
+                if (modExtension.drawSize == null || !Utility_GeneManager.GeneValidator(pawn, modExtension))
+                {
+                    return;
+                }
+
+                multiplier = modExtension.drawSize.x;
+
+                __result *= multiplier;
+            }
+            else
+            {
+                float scaling = Utility_BodySnatcherManager.GetScaling(pawn, isHeadPart: false);
+                __result *= scaling;
+            }
         }
 
         [HarmonyPostfix]
         public static void GetHumanlikeHairSetForPawnPostFix(Pawn pawn, ref GraphicMeshSet __result)
         {
+            // skip if no hair or dessicated
             if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(pawn))
-            {
                 return;
-            }
 
-            if (pawn.story.hairDef == HairDefOf.Bald || pawn.story.hairDef == null)
-            {
+            var modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(pawn);
+            if (modExtension == null)
                 return;
-            }
-
-            float scaling = Utility_BodySnatcherManager.GetScaling(pawn, isHeadPart: true);
-
-            Vector2 baseSize = pawn.story.headType.beardMeshSize;
-            if (baseSize == default(Vector2))
+            if (modExtension.headdrawSize == null || !Utility_GeneManager.GeneValidator(pawn, modExtension))
+                return;
+            if (pawn.story != null && modExtension.invisibleHead && modExtension.noHair)
             {
-                baseSize = new Vector2(1.5f, 1.5f);
+                // only switch to Bald if not already set, so you don’t stomp user changes repeatedly
+                if (pawn.story.hairDef == null || pawn.story.hairDef != HairDefOf.Bald)
+                {
+                    pawn.story.hairDef = HairDefOf.Bald;
+                }
             }
-            Vector2 finalSize = baseSize * scaling;
 
-            if (ModsConfig.BiotechActive && pawn.ageTracker.CurLifeStage.headSizeFactor.HasValue)
+            // when VFE Core is active: fall back to your old headdrawSize logic
+            if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core"))
             {
-                finalSize *= pawn.ageTracker.CurLifeStage.headSizeFactor.Value;
-            }
+                float multiplier = 1f;
+                
+                multiplier = modExtension.headdrawSize.x;
 
-            __result = MeshPool.GetMeshSetForSize(finalSize.x, finalSize.y);
+                // determine base hair‐mesh size
+                if (pawn.story.headType.hairMeshSize == null)
+                {
+                    pawn.story.headType.hairMeshSize = new Vector2(1.5f, 1.5f);
+                }
+
+                Vector2 baseSize = pawn.story.headType.hairMeshSize;
+
+                // apply life‐stage headSizeFactor
+                if (ModsConfig.BiotechActive && pawn.ageTracker.CurLifeStage.headSizeFactor.HasValue)
+                    multiplier *= pawn.ageTracker.CurLifeStage.headSizeFactor.Value;
+
+                Vector2 size = baseSize * multiplier;
+                __result = MeshPool.GetMeshSetForSize(size.x, size.y);
+            }
+            else
+            {
+                // when VFE Core is NOT active: use your new uniform scaling
+                float scaling = Utility_BodySnatcherManager.GetScaling(pawn, isHeadPart: true);
+
+                // start from beardMeshSize (which is hair mesh for head)
+                if (pawn.story.headType.hairMeshSize == null)
+                {
+                    pawn.story.headType.hairMeshSize = new Vector2(1.5f, 1.5f);
+                }
+
+                Vector2 baseSize = pawn.story.headType.hairMeshSize;
+
+                // biotech headSizeFactor
+                if (ModsConfig.BiotechActive && pawn.ageTracker.CurLifeStage.headSizeFactor.HasValue)
+                    baseSize *= pawn.ageTracker.CurLifeStage.headSizeFactor.Value;
+
+                Vector2 finalSize = baseSize * scaling;
+                __result = MeshPool.GetMeshSetForSize(finalSize.x, finalSize.y);
+            }
         }
 
         [HarmonyPostfix]
         public static void GetHumanlikeBeardSetForPawnPostFix(Pawn pawn, ref GraphicMeshSet __result)
         {
+            // skip non‐valid pawns
             if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(pawn))
-            {
                 return;
-            }
-
             if (pawn.style.beardDef == BeardDefOf.NoBeard || pawn.style.beardDef == null)
                 return;
 
-            float scaling = Utility_BodySnatcherManager.GetScaling(pawn, isHeadPart: true);
-
-            Vector2 baseSize = pawn.story.headType.beardMeshSize;
-            if (baseSize == default(Vector2))
+            // ── VFE Core enabled? use old headdrawSize logic ─────────────────
+            if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core"))
             {
-                baseSize = new Vector2(1.5f, 1.5f);
-            }
-            Vector2 finalSize = baseSize * scaling;
+                var modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(pawn);
+                if (modExtension == null || modExtension.useVEFCoreScaler)
+                    return;
+                if (modExtension.headdrawSize == null || !Utility_GeneManager.GeneValidator(pawn, modExtension))
+                    return;
 
-            if (ModsConfig.BiotechActive && pawn.ageTracker.CurLifeStage.headSizeFactor.HasValue)
+                float modifier = 1f;
+
+                modifier = modExtension.headdrawSize.x;
+
+                if (pawn.story.headType.hairMeshSize == null)
+                {
+                    pawn.story.headType.hairMeshSize = new Vector2(1.5f, 1.5f);
+                }
+
+                Vector2 baseSize = pawn.story.headType.hairMeshSize;
+
+                if (ModsConfig.BiotechActive && pawn.ageTracker.CurLifeStage.headSizeFactor.HasValue)
+                    modifier *= pawn.ageTracker.CurLifeStage.headSizeFactor.Value;
+
+                Vector2 size = baseSize * modifier;
+                __result = MeshPool.GetMeshSetForSize(size.x, size.y);
+            }
+            else
             {
-                finalSize *= pawn.ageTracker.CurLifeStage.headSizeFactor.Value;
-            }
+                // ── VFE Core disabled? use new uniform scaling ──────────────────
+                float scaling = Utility_BodySnatcherManager.GetScaling(pawn, isHeadPart: true);
 
-            __result = MeshPool.GetMeshSetForSize(finalSize.x, finalSize.y);
+                if (pawn.story.headType.hairMeshSize == null)
+                {
+                    pawn.story.headType.hairMeshSize = new Vector2(1.5f, 1.5f);
+                }
+
+                Vector2 baseSize = pawn.story.headType.hairMeshSize;
+
+                Vector2 finalSize = baseSize * scaling;
+
+                if (ModsConfig.BiotechActive && pawn.ageTracker.CurLifeStage.headSizeFactor.HasValue)
+                    finalSize *= pawn.ageTracker.CurLifeStage.headSizeFactor.Value;
+
+                __result = MeshPool.GetMeshSetForSize(finalSize.x, finalSize.y);
+            }
         }
 
         [HarmonyPostfix]
         public static void ScaleForEyesPostFix(PawnRenderNode node, PawnDrawParms parms, ref Vector3 __result)
         {
+            // ─── 1) Only valid, non-dessicated humanlike pawns ────────────────────
             if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(parms.pawn))
-            {
                 return;
+
+            // ─── 2) If VFE Core is active, run the “old” drawSize logic ───────────
+            if (ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core"))
+            {
+                var modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(parms.pawn);
+                if (modExtension == null)
+                    return;
+
+                // Don’t scale invisible-head pawns or those opting into VFE’s own scaler
+                if (modExtension.invisibleHead || modExtension.useVEFCoreScaler)
+                    return;
+
+                // Require a positive drawSize and valid genes
+                if (modExtension.drawSize == null || modExtension.drawSize.x < 0f
+                    || !Utility_GeneManager.GeneValidator(parms.pawn, modExtension))
+                    return;
+
+                // Use head-specific override if set
+                float multiplier = modExtension.drawSize.x;
+                if (modExtension.headdrawSize.x > 0f)
+                    multiplier = modExtension.headdrawSize.x;
+
+                // Apply life-stage head size factor
+                if (ModsConfig.BiotechActive
+                    && parms.pawn.ageTracker.CurLifeStage.headSizeFactor.HasValue)
+                {
+                    multiplier *= parms.pawn.ageTracker.CurLifeStage.headSizeFactor.Value;
+                }
+
+                // ─── Injected: multiply the original size by the old-logic multiplier ───
+                Vector3 orig = __result;
+                __result = new Vector3(orig.x * multiplier, orig.y * multiplier, orig.z * multiplier);
             }
-
-            float scaling = Utility_BodySnatcherManager.GetScaling(parms.pawn, isHeadPart: true);
-
-            Vector3 originalSize = __result;
-            __result = new Vector3(originalSize.x * scaling, originalSize.y * scaling, originalSize.z * scaling);
+            else
+            {
+                // ─── 3) If VFE Core is not active, use your new uniform head scaling ────
+                float scaling = Utility_BodySnatcherManager.GetScaling(parms.pawn, isHeadPart: true);
+                Vector3 orig = __result;
+                __result = new Vector3(orig.x * scaling, orig.y * scaling, orig.z * scaling);
+            }
         }
 
         //[HarmonyPostfix]
