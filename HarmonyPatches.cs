@@ -2070,6 +2070,7 @@ namespace MIM40kFactions
             {
                 return;
             }
+
             if (__instance.RaceProps.baseHealthScale > 1f)
             {
                 return;
@@ -2081,10 +2082,13 @@ namespace MIM40kFactions
             {
                 return;
             }
-            if (modExtension.drawSize == null)
+
+            // Vector2 is a struct and can't be null, so use default instead
+            if (modExtension.drawSize == default)
             {
-                modExtension.drawSize.x = 1f;
+                modExtension.drawSize = new Vector2(1f, 1f);
             }
+
             __result *= modExtension.drawSize.x;
         }
     }

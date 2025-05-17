@@ -81,6 +81,8 @@
     <Compile Include="AbilityRestrictionExtension.cs" />
     <Compile Include="ApparelRestrictionbyRaceExtension.cs" />
     <Compile Include="ApparelRestrictionbyHediffExtension.cs" />
+    <Compile Include="StatPartInjector.cs" />
+    <Compile Include="StatPart_VariableStatBonus.cs" />
     <Compile Include="Utility_BodySnatcherManager.cs" />
     <Compile Include="Utility_BillConfigurator.cs" />
     <Compile Include="Dialog_LoadoutConfigurator.cs" />

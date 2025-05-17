@@ -9,6 +9,7 @@ using Verse;
 
 namespace MIM40kFactions
 {
+    [StaticConstructorOnStartup]
     public class MechPowerCellBuildingGizmo : Gizmo
     {
         private CompMechPowerCellBuilding powerCell;
