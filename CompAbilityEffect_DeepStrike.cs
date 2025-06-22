@@ -9,7 +9,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Verse.AI;
 using Verse.Sound;
-using MIM40kFactions.Compatibility;
 
 namespace MIM40kFactions
 {    
@@ -246,7 +245,6 @@ namespace MIM40kFactions
             return CanDeepStrikeTarget(target).Reason;
         }
 
-        [Multiplayer.SyncMethod]
         public static void SendDeepStrikeUsedSignal(LocalTargetInfo target, Thing initiator)
         {
             Find.SignalManager.SendSignal(new Signal(SkipUsedSignalTag, target.Named("POSITION"), initiator.Named("SUBJECT")));

@@ -10,7 +10,7 @@ namespace MIM40kFactions
     {
         public MIM40kFactionsGasProperties Props => def.gas as MIM40kFactionsGasProperties;
         
-        public override void Tick()
+        protected override void Tick()
         {
             try
             {

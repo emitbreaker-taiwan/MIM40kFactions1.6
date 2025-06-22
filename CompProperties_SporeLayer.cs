@@ -12,7 +12,7 @@ namespace MIM40kFactions
     {
         public float sporeLayIntervalDays = 1f;
 
-        public IntRange sporeCountRange = IntRange.one;
+        public IntRange sporeCountRange = new IntRange(1, 1);
 
         public ThingDef sporeUnfertilizedDef;
 

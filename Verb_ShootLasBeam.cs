@@ -677,21 +677,16 @@ namespace MIM40kFactions
             {
                 float num = verbProps.beamTotalDamage / (float)pathCells.Count;
                 num *= damageFactor;
+                dinfo = new DamageInfo(verbProps.beamDamageDef, num, verbProps.beamDamageDef.defaultArmorPenetration, angleFlat, caster, null, base.EquipmentSource.def, DamageInfo.SourceCategory.ThingOrUnknown, currentTarget.Thing);
+            }
+
+            if (verbProps.beamTotalDamage > 0f)
+            {
+                float num = verbProps.beamTotalDamage / (float)pathCells.Count;
+                num *= damageFactor;
                 if (compWeaponAbilities != null && compWeaponAbilities.Props.isMelta)
                 {
-                    float bonus = compWeaponAbilities.Props.originalDamageAmount * compWeaponAbilities.Props.meltaAmount / 6;
-                    DamageInfo bonusDinfo = new DamageInfo(
-                        verbProps.beamDamageDef, // Or a custom Melta damageDef
-                        bonus,
-                        verbProps.beamDamageDef.defaultArmorPenetration,
-                        angleFlat,
-                        caster,
-                        null,
-                        EquipmentSource.def,
-                        DamageInfo.SourceCategory.ThingOrUnknown,
-                        currentTarget.Thing);
-
-                    thing.TakeDamage(bonusDinfo);
+                    num = num * compWeaponAbilities.Props.meltaAmount / 6;
                 }
                 dinfo = new DamageInfo(verbProps.beamDamageDef, num, verbProps.beamDamageDef.defaultArmorPenetration, angleFlat, caster, null, base.EquipmentSource.def, DamageInfo.SourceCategory.ThingOrUnknown, currentTarget.Thing);
             }

@@ -1,5 +1,4 @@
-﻿using MIM40kFactions.Compatibility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +13,6 @@ namespace MIM40kFactions
         private static Dictionary<ThingDef, int> cachedThingCountByDef = new Dictionary<ThingDef, int>();
 
         // Generalized method to count pawns by ThingDef (could be PawnKindDef or any other def type)
-        [Multiplayer.SyncMethod]
         public static int GetThingCountByDef(ThingDef def, Map map)
         {
             // Invalidate cache and update tick when necessary
@@ -58,14 +56,12 @@ namespace MIM40kFactions
         }
 
         // Sync method for clearing cache to ensure consistency
-        [Multiplayer.SyncMethod]
         public static void ClearCache()
         {
             cachedThingCountByDef.Clear();
         }
 
         // Ensure cache synchronization when the game tick updates
-        [Multiplayer.SyncMethod]
         public static void UpdateTick()
         {
             cachedTick = Find.TickManager.TicksGame;

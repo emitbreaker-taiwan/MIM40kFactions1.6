@@ -62,9 +62,9 @@ namespace MIM40kFactions
 
         public SimpleCurve flammabilityAttachFireChanceCurve;
 
-        public Color? highlightColor;
+        public Color highlightColor = Color.white;
 
-        public Color? secondaryHighlightColor;
+        public Color secondaryHighlightColor = Color.white;
 
         public int ticksAwayFromCast = 17;
 

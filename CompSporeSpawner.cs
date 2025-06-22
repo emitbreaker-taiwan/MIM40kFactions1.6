@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MIM40kFactions.Compatibility;
 using RimWorld;
 using Verse;
 using Verse.Noise;
@@ -56,7 +55,6 @@ namespace MIM40kFactions
             }
         }
 
-        [Multiplayer.SyncMethod]
         public override void PostSpawnSetup(bool respawningAfterLoad)
         {
             if (!respawningAfterLoad)
@@ -65,7 +63,6 @@ namespace MIM40kFactions
             }
         }
 
-        [Multiplayer.SyncMethod]
         public override void CompTick()
         {
             if (!IsValidSpawner()) return;
@@ -93,7 +90,6 @@ namespace MIM40kFactions
             }
         }
 
-        [Multiplayer.SyncMethod]
         public override void CompTickRare()
         {
             if (!IsValidSpawner()) return;
@@ -121,7 +117,6 @@ namespace MIM40kFactions
             }
         }
 
-        [Multiplayer.SyncMethod]
         public override void CompTickLong()
         {
             if (!IsValidSpawner()) return;
@@ -180,7 +175,6 @@ namespace MIM40kFactions
             }
         }
 
-        [Multiplayer.SyncMethod]
         public bool TryDoSpawn()
         {
             if (!IsValidSpawner()) return false;
@@ -334,7 +328,6 @@ namespace MIM40kFactions
             return false;
         }
 
-        [Multiplayer.SyncMethod]
         private void ResetCountdown()
         {
             ticksUntilSpawn = PropsSpawner.spawnIntervalRange.RandomInRange;

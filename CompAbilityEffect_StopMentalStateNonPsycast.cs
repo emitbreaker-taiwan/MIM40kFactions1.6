@@ -65,7 +65,7 @@ namespace MIM40kFactions
                 return false;
             }
 
-            if (target.Pawn == null || target.Pawn.RaceProps.IsMechanoid || target.Pawn.IsMutant || target.Pawn.IsNonMutantAnimal)
+            if (target.Pawn == null || target.Pawn.RaceProps.IsMechanoid || target.Pawn.IsMutant)
                 return false;
 
             if (target.Pawn.Faction != parent.pawn.Faction)

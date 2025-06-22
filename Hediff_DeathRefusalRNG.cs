@@ -204,13 +204,13 @@ namespace MIM40kFactions
         {
             if (!warmupTimer.Finished)
             {
-                warmupTimer.TickInterval();
+                warmupTimer.TickIntervalDelta();
             }
 
             TryTriggerReadyEffect();
             if (!resurrectTimer.Finished)
             {
-                resurrectTimer.TickInterval();
+                resurrectTimer.TickIntervalDelta();
                 if (resurrectSustainer != null && !resurrectSustainer.Ended)
                 {
                     resurrectSustainer?.Maintain();

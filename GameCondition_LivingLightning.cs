@@ -19,9 +19,9 @@ namespace MIM40kFactions
 
         public IntVec2 centerLocation = IntVec2.Invalid;
 
-        public IntRange areaRadiusOverride = IntRange.zero;
+        public IntRange areaRadiusOverride = new IntRange(1, 1);
 
-        public IntRange initialStrikeDelay = IntRange.zero;
+        public IntRange initialStrikeDelay = new IntRange(1, 1);
 
         public bool ambientSound;
 
@@ -53,7 +53,7 @@ namespace MIM40kFactions
         public override void Init()
         {
             base.Init();
-            areaRadius = ((areaRadiusOverride == IntRange.zero) ? AreaRadiusRange.RandomInRange : areaRadiusOverride.RandomInRange);
+            areaRadius = ((areaRadiusOverride == new IntRange(1, 1)) ? AreaRadiusRange.RandomInRange : areaRadiusOverride.RandomInRange);
             nextLightningTicks = Find.TickManager.TicksGame + initialStrikeDelay.RandomInRange;
             if (centerLocation.IsInvalid)
             {

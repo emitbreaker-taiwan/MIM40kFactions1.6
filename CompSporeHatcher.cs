@@ -8,7 +8,6 @@ using RimWorld;
 using Verse;
 using RimWorld.Planet;
 using static MIM40kFactions.CompProperties_SporeHatcher;
-using MIM40kFactions.Compatibility;
 
 namespace MIM40kFactions
 {
@@ -39,7 +38,6 @@ namespace MIM40kFactions
             Scribe_References.Look(ref hatcheeFaction, "hatcheeFaction");
         }
 
-        [Multiplayer.SyncMethod]
         public override void CompTick()
         {
             if (!TemperatureDamaged)
@@ -96,7 +94,6 @@ namespace MIM40kFactions
             }
         }
 
-        [Multiplayer.SyncMethod]
         public void Hatch()
         {
             try
@@ -275,7 +272,7 @@ namespace MIM40kFactions
             }
         }
 
-        public override void PostPostGeneratedForTrader(TraderKindDef trader, int forTile, Faction forFaction)
+        public override void PostPostGeneratedForTrader(TraderKindDef trader, PlanetTile forTile, Faction forFaction)
         {
             base.PostPostGeneratedForTrader(trader, forTile, forFaction);
             hatcheeFaction = forFaction;

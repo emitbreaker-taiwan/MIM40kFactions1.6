@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MIM40kFactions.Compatibility;
 using RimWorld;
 using Verse;
 
@@ -37,7 +36,6 @@ namespace MIM40kFactions
             }
         }
 
-        [Multiplayer.SyncMethod]
         public override void PostPostApplyDamage(DamageInfo dinfo, float totalDamageDealt)
         {
             // Check spawn chance and cooldown before spawning

@@ -8,7 +8,6 @@ using RimWorld;
 using Verse;
 using Verse.Sound;
 using static HarmonyLib.Code;
-using MIM40kFactions.Compatibility;
 
 namespace MIM40kFactions
 {
@@ -100,7 +99,6 @@ namespace MIM40kFactions
             Scribe_References.Look(ref fertilizedBy, "fertilizedBy");
         }
 
-        [Multiplayer.SyncMethod]
         public override void CompTick()
         {
             if (Active)
@@ -124,7 +122,6 @@ namespace MIM40kFactions
             }
         }
 
-        [Multiplayer.SyncMethod]
         public void Fertilize(Pawn male)
         {
             if (Props.requireFertilization)
@@ -145,7 +142,6 @@ namespace MIM40kFactions
             return Props.sporeUnfertilizedDef;
         }
 
-        [Multiplayer.SyncMethod]
         public virtual Thing ProduceSpore()
         {
             if (!Active && Props.enableDebug)

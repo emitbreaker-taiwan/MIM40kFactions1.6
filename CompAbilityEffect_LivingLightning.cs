@@ -75,13 +75,11 @@ namespace MIM40kFactions
             }
             if (targetParm.canTargetPawns && target.Pawn == null)
                 return false;
-            if (targetParm.canTargetMutants && target.Pawn.IsMutant)
-                return true;
             if (targetParm.canTargetMechs && target.Pawn.RaceProps.IsMechanoid)
                 return true;
             if (targetParm.canTargetHumans && target.Pawn.RaceProps.Humanlike)
                 return true;
-            if (targetParm.canTargetAnimals && target.Pawn.IsNonMutantAnimal)
+            if (targetParm.canTargetAnimals && target.Pawn.IsAnimal)
                 return true;
             if (targetParm.canTargetLocations)
                 return true;

@@ -20,8 +20,6 @@ namespace MIM40kFactions
         public Mod_MIMWH40kFactions(ModContentPack content) : base(content)
         {
             settings = GetSettings<ModSettings_MIMWH40kFactions>();
-            cachedEnableThoughtBlocking = settings.enableHarmonyThoughtBlocking;
-            cachedEnableThoughtFilter = settings.enableHarmonyThoughtFiltering;
         }
 
         private static Vector2 scrollPosition = Vector2.zero;
@@ -50,11 +48,6 @@ namespace MIM40kFactions
             if (GetSettings<ModSettings_MIMWH40kFactions>().enableHarmonyThoughtFiltering != cachedEnableThoughtFilter)
             {
                 listingStandard.Label("ModSetting_TurnOnWipeMemoryRestartWarning".Translate());
-            }
-            listingStandard.Gap(10f); // Optional spacing
-            if (listingStandard.ButtonText("ModSetting_GlobalThoughtDefsButton".Translate()))
-            {
-                Find.WindowStack.Add(new Dialog_ThoughtDefSelector(GetSettings<ModSettings_MIMWH40kFactions>().globalBlockedThoughtDefs));
             }
             listingStandard.Gap(10f); // Optional spacing
             settings.accuracyModifier = listingStandard.SliderLabeled("ModSetting_RangedAccuracyModifier".Translate() + ": " + (settings.accuracyModifier / 100f).ToStringPercent(), settings.accuracyModifier, 0f, 100f, 0.5f, "ModSetting_RangedAccuracyModifierExplanation".Translate());

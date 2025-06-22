@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using UnityEngine;
 using RimWorld;
 using Verse;
-using MIM40kFactions.Compatibility;
 
 namespace MIM40kFactions
 {

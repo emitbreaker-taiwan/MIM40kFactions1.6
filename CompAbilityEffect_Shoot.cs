@@ -158,7 +158,7 @@ namespace MIM40kFactions
             if (ShootVerb.verbProps.canGoWild && !Rand.Chance(shotReport.AimOnTargetChance_IgnoringPosture))
             {
                 bool flyOverhead = projectile2?.def?.projectile != null && projectile2.def.projectile.flyOverhead;
-                resultingLine.ChangeDestToMissWild_NewTemp(shotReport.AimOnTargetChance_StandardTarget, flyOverhead, caster.Map);
+                resultingLine.ChangeDestToMissWild(shotReport.AimOnTargetChance_StandardTarget, flyOverhead, caster.Map);
                 ThrowDebugText("Wild\nDest", resultingLine.Dest);
                 ProjectileHitFlags projectileHitFlags2 = ProjectileHitFlags.NonTargetWorld;
                 if (Rand.Chance(0.5f))

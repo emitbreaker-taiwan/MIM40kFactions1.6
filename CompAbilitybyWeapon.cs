@@ -1,5 +1,4 @@
-﻿using MIM40kFactions.Compatibility;
-using RimWorld;
+﻿using RimWorld;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +15,6 @@ namespace MIM40kFactions
         private Pawn lastHolder;
 
         // Sync method to ensure abilities are synchronized in multiplayer
-        [Multiplayer.SyncMethod]
         public void SyncGainAbilities(Pawn pawn)
         {
             if (ModsConfig.BiotechActive && pawn.abilities != null)
@@ -32,7 +30,6 @@ namespace MIM40kFactions
         }
 
         // Sync method for unequipping abilities
-        [Multiplayer.SyncMethod]
         public void SyncRemoveAbilities(Pawn pawn)
         {
             if (ModsConfig.BiotechActive && pawn.abilities != null)

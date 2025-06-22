@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MIM40kFactions</RootNamespace>
-    <AssemblyName>MIM40kFactions1.5</AssemblyName>
+    <AssemblyName>MIM40kFactions1.6</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>false</Deterministic>
@@ -40,9 +40,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\SteamLibrary\steamapps\workshop\content\294100\839005762\1.5\Assemblies\AlienRace.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp, Version=1.5.9214.33606, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Assembly-CSharp1.6Unstable, Version=1.6.9303.4720, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Assemblies\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\Assemblies\Assembly-CSharp1.6Unstable.dll</HintPath>
     </Reference>
     <Reference Include="CharacterEditor">
       <HintPath>..\..\..\SteamLibrary\steamapps\workshop\content\294100\3211700981\v1.5\Assemblies\CharacterEditor.dll</HintPath>
@@ -81,6 +81,7 @@
     <Compile Include="AbilityRestrictionExtension.cs" />
     <Compile Include="ApparelRestrictionbyRaceExtension.cs" />
     <Compile Include="ApparelRestrictionbyHediffExtension.cs" />
+    <Compile Include="CompAbilityEffect_ShootBeam.cs" />
     <Compile Include="StatPartInjector.cs" />
     <Compile Include="StatPart_VariableStatBonus.cs" />
     <Compile Include="Utility_BodySnatcherManager.cs" />
@@ -88,17 +89,6 @@
     <Compile Include="Dialog_LoadoutConfigurator.cs" />
     <Compile Include="ITargetingRules.cs" />
     <Compile Include="Utility_MapPawnCount.cs" />
-    <Compile Include="Utility_Multiplayer.cs" />
-    <Compile Include="Multiplayer.cs" />
-    <Compile Include="IPatch.cs" />
-    <Compile Include="GameComponent_SanitizerTracker.cs" />
-    <Compile Include="SanitizerTrackerRegistry.cs" />
-    <Compile Include="SanitizerRaceTracker.cs" />
-    <Compile Include="SanitizerConsumableTracker.cs" />
-    <Compile Include="SanitizerApparelTracker.cs" />
-    <Compile Include="ISanitizerTracker.cs" />
-    <Compile Include="SanitizerHistory.cs" />
-    <Compile Include="ISanitizerSource.cs" />
     <Compile Include="Verb_ShootChainBeamPistol.cs" />
     <Compile Include="Verb_ArcSprayPenetratePistol.cs" />
     <Compile Include="Verb_ShootLasBeamPistol.cs" />
@@ -106,18 +96,6 @@
     <Compile Include="ThoughtDefSanitizerCategoryExtension.cs" />
     <Compile Include="Utility_TargetValidator.cs" />
     <Compile Include="CombatBuildingExtension.cs" />
-    <Compile Include="HediffCompProperties_PawnSanitizerEndWatcher.cs" />
-    <Compile Include="HediffComp_PawnSanitizerEndWatcher.cs" />
-    <Compile Include="CompProperties_PawnSanitizerConsumables.cs" />
-    <Compile Include="CompUseEffect_PawnSanitizerConsumables.cs" />
-    <Compile Include="CompProperties_PawnSanitizerApparel.cs" />
-    <Compile Include="CompPawnSanitizerApparel.cs" />
-    <Compile Include="Dialog_ThoughtDefSelector.cs" />
-    <Compile Include="CompPawnSanitizer.cs" />
-    <Compile Include="CompProperties_PawnSanitizer.cs" />
-    <Compile Include="Utility_ThoughtBlockerRegistry.cs" />
-    <Compile Include="HediffCompProperties_PawnSanitizer.cs" />
-    <Compile Include="HediffComp_PawnSanitizer.cs" />
     <Compile Include="Verb_ShootRadialBeam.cs" />
     <Compile Include="Verb_ShootChainBeam.cs" />
     <Compile Include="CompMassModifier.cs" />
@@ -143,8 +121,6 @@
     <Compile Include="HediffGiver_RandomTimePassed.cs" />
     <Compile Include="RecipeExtension.cs" />
     <Compile Include="Recipe_SurgeryRubicon.cs" />
-    <Compile Include="PawnRenderNodeProperties_HeadAttachmentCustom.cs" />
-    <Compile Include="PawnRenderNodeWorker_HeadAttachmentCustom.cs" />
     <Compile Include="CompProperties_SpawnThingsOnDamaged.cs" />
     <Compile Include="CompSpawnThingsOnDamaged.cs" />
     <Compile Include="Verb_ShootLasBeam.cs" />
@@ -180,7 +156,7 @@
     <Compile Include="CompConfigurator_WeaponAccuracy.cs" />
     <Compile Include="ModSettings_MIMWH40kFactions.cs" />
     <Compile Include="Mod_MIMWH40kFactions.cs" />
-    <Compile Include="CompAbilityEffect_ShootBeam.cs" />
+    <Compile Include="CompAbilityEffect_ShootBeamOld.cs" />
     <Compile Include="CompProperties_AbilityShootBeam.cs" />
     <Compile Include="LasBeamPropertiesExtension.cs" />
     <Compile Include="Verb_ArcSprayPenetrate.cs" />

@@ -95,6 +95,11 @@ namespace MIM40kFactions
                 ? (modExtension.headdrawSize.x > 0f ? modExtension.headdrawSize.x : 1f)
                 : (modExtension.drawSize.x > 0f ? modExtension.drawSize.x : 1f);
 
+            if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core"))
+            {
+                scaling = Mathf.Min(scaling, 1.3f);
+            }
+
             return scaling;
         }
     }
