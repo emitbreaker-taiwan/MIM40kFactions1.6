@@ -10,10 +10,13 @@ namespace MIM40kFactions
 {
     public static class Utility_TargetValidator
     {
-        public static bool IsValidTargetForAbility(Thing target, Pawn caster, ITargetingRules props = null)
+        public static bool IsValidTargetForAbility(Thing target, Pawn caster, bool targetHostilesOnly = false, bool targetNeutralBuildings = false, bool allowNoTarget = false)
         {
-            if (target == null || caster == null)
+            if (caster == null)
                 return false;
+
+            if (target == null)
+                return allowNoTarget;
 
             if (target == caster)
                 return false;
@@ -21,7 +24,10 @@ namespace MIM40kFactions
             // Pawn target handling
             if (target is Pawn pawn)
             {
-                if (props?.TargetHostilesOnly == true && !pawn.HostileTo(caster))
+                if (caster.Faction == Faction.OfPlayer)
+                    return true;
+
+                if (targetHostilesOnly == true && !pawn.HostileTo(caster))
                     return false;
 
                 return true;
@@ -30,8 +36,11 @@ namespace MIM40kFactions
             Faction casterFaction = caster.Faction;
             Faction targetFaction = target.Faction;
 
-            if (props?.TargetHostilesOnly == true && targetFaction != null && casterFaction != null)
+            if (targetHostilesOnly == true && targetFaction != null && casterFaction != null)
             {
+                if (caster.Faction == Faction.OfPlayer)
+                    return true;
+
                 if (!targetFaction.HostileTo(casterFaction))
                     return false;
             }
@@ -48,8 +57,13 @@ namespace MIM40kFactions
                 if (isCombatStructure)
                     return true;
 
-                if (props?.TargetNeutralBuildings == true && (def.building != null || def.IsWeapon))
+                // For neutral buildings
+                if (targetNeutralBuildings || caster.Faction == Faction.OfPlayer)
                     return true;
+
+                // For non-neutral buildings, must be hostile
+                if (targetFaction != null && casterFaction != null)
+                    return targetFaction.HostileTo(casterFaction);
             }
 
             return false;

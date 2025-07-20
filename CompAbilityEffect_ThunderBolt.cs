@@ -22,7 +22,7 @@ namespace MIM40kFactions
         public override void Apply(LocalTargetInfo target, LocalTargetInfo dest)
         {
             base.Apply(target, dest);
-            if (!Utility_TargetValidator.IsValidTargetForAbility(target.Thing, parent.pawn, Props))
+            if (!Utility_TargetValidator.IsValidTargetForAbility(target.Thing, parent.pawn, Props.targetHostilesOnly, Props.targetNeutralBuildings, ShootVerb.verbProps.targetParams.canTargetLocations))
             {
                 return;
             }
@@ -116,7 +116,7 @@ namespace MIM40kFactions
             if (!target.IsValid || !target.HasThing)
                 return false;
 
-            return Utility_TargetValidator.IsValidTargetForAbility(target.Thing, parent.pawn, Props);
+            return Utility_TargetValidator.IsValidTargetForAbility(target.Thing, parent.pawn, Props.targetHostilesOnly, Props.targetNeutralBuildings, ShootVerb.verbProps.targetParams.canTargetLocations);
         }
     }
 }

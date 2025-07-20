@@ -63,32 +63,32 @@ namespace MIM40kFactions
             }
         }
 
-        public override void CompTick()
-        {
-            if (!IsValidSpawner()) return;
+        //public override void CompTick()
+        //{
+        //    if (!IsValidSpawner()) return;
 
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.OK.Core"))
-            {
-                if (maxOrkoidCount > 0)
-                {
-                    if (MapTargetPawnKindCount >= maxOrkoidCount)
-                    {
-                        return;
-                    }
-                }
-                if (countSpore && maxSporeCount > 0)
-                {
-                    if (MapTargetSpore >= maxSporeCount)
-                    {
-                        return;
-                    }
-                }
-            }
-            else
-            {
-                TickInterval(1);
-            }
-        }
+        //    if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.OK.Core"))
+        //    {
+        //        if (maxOrkoidCount > 0)
+        //        {
+        //            if (MapTargetPawnKindCount >= maxOrkoidCount)
+        //            {
+        //                return;
+        //            }
+        //        }
+        //        if (countSpore && maxSporeCount > 0)
+        //        {
+        //            if (MapTargetSpore >= maxSporeCount)
+        //            {
+        //                return;
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        TickInterval(1);
+        //    }
+        //}
 
         public override void CompTickRare()
         {
@@ -111,10 +111,8 @@ namespace MIM40kFactions
                     }
                 }
             }
-            else
-            {
-                TickInterval(250);
-            }
+
+            TickInterval(250);
         }
 
         public override void CompTickLong()
@@ -138,10 +136,8 @@ namespace MIM40kFactions
                     }
                 }
             }
-            else
-            {
-                TickInterval(2000);
-            }
+
+            TickInterval(2000);
         }
 
         private void TickInterval(int interval)
@@ -233,17 +229,16 @@ namespace MIM40kFactions
                         {
                             if (PropsSpawner.forceFactionDef != null)
                             {
-                                thing.SetFaction(Find.FactionManager.FirstFactionOfDef(PropsSpawner.forceFactionDef));
+                                thing.SetFactionDirect(Find.FactionManager.FirstFactionOfDef(PropsSpawner.forceFactionDef));
                             }
 
                             if (parent.Faction == null)
                             {
-                                if (PropsSpawner.defaultFactionDef == null || Find.FactionManager.FirstFactionOfDef(PropsSpawner.defaultFactionDef) == null)
+                                if (PropsSpawner.defaultFactionDef != null && Find.FactionManager.FirstFactionOfDef(PropsSpawner.defaultFactionDef) != null)
                                 {
-                                    sporeFaction = Faction.OfInsects.def;
-                                }
-
-                                if (Find.FactionManager.FirstFactionOfDef(FactionDef.Named("EMOK_PlayerColony")) != null && parent.Map.IsPlayerHome)
+                                    sporeFaction = PropsSpawner.defaultFactionDef;
+                                }                                
+                                else if (Find.FactionManager.FirstFactionOfDef(FactionDef.Named("EMOK_PlayerColony")) != null && parent.Map.IsPlayerHome)
                                 {
                                     sporeFaction = FactionDef.Named("EMOK_PlayerColony");
                                 }
@@ -257,6 +252,10 @@ namespace MIM40kFactions
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    sporeFaction = Faction.OfInsects.def;
+                                }
                             }
 
                             if (parent.Faction != null && thing.Faction != parent.Faction)
@@ -265,9 +264,9 @@ namespace MIM40kFactions
                             }
 
                             Faction targetFaction = Find.FactionManager.FirstFactionOfDef(sporeFaction);
-                            if (thing.Faction != targetFaction)
+                            if (thing.Faction == null || thing.Faction != targetFaction)
                             {
-                                thing.SetFaction(targetFaction);
+                                thing.SetFactionDirect(targetFaction);
                             }
                         }
                     }
@@ -292,9 +291,22 @@ namespace MIM40kFactions
 
         public bool TryFindSpawnCell(Thing parent, ThingDef thingToSpawn, int spawnCount, out IntVec3 result)
         {
-            foreach (IntVec3 item in GenRadial.RadialCellsAround(parent.Position, PropsSpawner.spawnRadius < 0 ? 1f : PropsSpawner.spawnRadius, false).OfType<IntVec3>().ToList().InRandomOrder())
+            float effectiveRadius = Math.Min(PropsSpawner.spawnRadius, 10f);
+
+            var sortedCells = GenRadial.RadialCellsAround(parent.Position, PropsSpawner.spawnRadius < 0 ? 1f : effectiveRadius, false).OrderBy(cell => cell.DistanceTo(parent.Position));
+
+            int maxCellsToCheck = 50;
+            int cellsChecked = 0;
+
+            foreach (IntVec3 item in sortedCells)
             {
-                if (!item.Walkable(parent.Map))
+                if (cellsChecked >= maxCellsToCheck)
+                {
+                    break;
+                }
+                cellsChecked++;
+
+                if (!item.InBounds(parent.Map) || item.Fogged(parent.Map) || !item.Walkable(parent.Map))
                 {
                     continue;
                 }

@@ -69,7 +69,7 @@ namespace MIM40kFactions
             this.forcePause = true;
             this.closeOnAccept = false;
             this.closeOnCancel = false;
-            this.absorbInputAroundWindow = true;
+            this.absorbInputAroundWindow = false;
 
             foreach (Apparel apparel in pawn.apparel.WornApparel.Where(IsCustomizableApparel))
             {

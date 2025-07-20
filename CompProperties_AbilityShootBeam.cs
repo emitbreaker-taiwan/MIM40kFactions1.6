@@ -6,20 +6,16 @@ using System.Threading.Tasks;
 using RimWorld;
 using UnityEngine;
 using Verse;
-using static MIM40kFactions.Utility_TargetValidator;
 
 namespace MIM40kFactions
 {
-    public class CompProperties_AbilityShootBeam : CompProperties_AbilityEffect, ITargetingRules
+    public class CompProperties_AbilityShootBeam : CompProperties_AbilityEffect
     {
         public int burstShotCount = 1;
-
         public int ticksBetweenBurstShots = 15;
-
         public float lineWidthEnd;
 
         public bool canHitFilledCells = true;
-
         public DamageDef beamDamageDef;
 
         public float beamWidth = 1f;
@@ -139,9 +135,6 @@ namespace MIM40kFactions
         public bool allowFriendlyFire = false;
         public bool targetHostilesOnly = true; // Default: true to avoid accidents
         public bool targetNeutralBuildings = false; // Default: false to avoid accidents
-
-        public bool TargetHostilesOnly => targetHostilesOnly;
-        public bool TargetNeutralBuildings => targetNeutralBuildings;
 
         public CompProperties_AbilityShootBeam()
         {

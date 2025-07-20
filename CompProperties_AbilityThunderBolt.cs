@@ -5,7 +5,7 @@ using static MIM40kFactions.Utility_TargetValidator;
 
 namespace MIM40kFactions
 {
-    public class CompProperties_AbilityThunderBolt : CompProperties_AbilityEffect, ITargetingRules
+    public class CompProperties_AbilityThunderBolt : CompProperties_AbilityEffect
     {
         public bool randomBurst = false;
         public int burstShotCount = 0;
@@ -43,9 +43,6 @@ namespace MIM40kFactions
         public bool allowFriendlyFire = false;
         public bool targetHostilesOnly = true; // Default: true to avoid accidents
         public bool targetNeutralBuildings = false; // Default: false to avoid accidents
-
-        public bool TargetHostilesOnly => targetHostilesOnly;
-        public bool TargetNeutralBuildings => targetNeutralBuildings;
 
         public CompProperties_AbilityThunderBolt()
         {

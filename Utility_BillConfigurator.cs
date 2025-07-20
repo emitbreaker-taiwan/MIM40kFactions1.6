@@ -145,9 +145,9 @@ namespace MIM40kFactions
         {
         { StuffCategoryDefOf.Metallic, ThingDefOf.Steel },
         { StuffCategoryDefOf.Fabric, ThingDef.Named("Cloth") },
-        { StuffCategoryDefOf.Leathery, ThingDef.Named("Plainleather") },
+        { StuffCategoryDefOf.Leathery, ThingDef.Named("Leather_Plain") },
         { DefDatabase<StuffCategoryDef>.GetNamed("Woody", false), ThingDef.Named("WoodLog") },
-        { DefDatabase<StuffCategoryDef>.GetNamed("Stony", false), ThingDef.Named("GraniteBlocks") }
+        { DefDatabase<StuffCategoryDef>.GetNamed("Stony", false), ThingDef.Named("BlocksGranite") }
         };
 
         public static ThingDef GetDefaultStuff(ThingDef def)

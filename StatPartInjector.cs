@@ -12,12 +12,14 @@ namespace MIM40kFactions
     {
         static StatPartInjector()
         {
+            LongEventHandler.ExecuteWhenFinished(InjectStatParts);
+        }
+
+        private static void InjectStatParts()
+        {
             try
             {
-                // 1) Ensure the StatDefOf static constructor has run and all fields are loaded:
-                DefOfHelper.EnsureInitializedInCtor(typeof(StatDefOf));
-
-                // 2) List every StatDef you want to patch:
+                // List every StatDef you want to patch:
                 StatDef[] statsToPatch = new[]
                 {
                     StatDefOf.MeleeHitChance,
@@ -32,13 +34,13 @@ namespace MIM40kFactions
                 // Filter out any null StatDefs
                 foreach (var sd in statsToPatch.Where(s => s != null))
                 {
-                    // 3) Make sure the parts list exists
+                    // Make sure the parts list exists
                     if (sd.parts == null)
                     {
                         sd.parts = new List<StatPart>();
                     }
 
-                    // 4) Create a new StatPart for each StatDef (don't reuse the same instance)
+                    // Create a new StatPart for each StatDef
                     var part = new StatPart_VariableStatBonus();
                     part.stat = sd;
 

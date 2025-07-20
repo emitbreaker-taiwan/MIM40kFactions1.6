@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Verse;
 
 namespace MIM40kFactions
 {
-    public interface ITargetingRules
+    public class IsMIMMechanoidExtension : DefModExtension
     {
-        bool TargetHostilesOnly { get; }
-        bool TargetNeutralBuildings { get; }
     }
 }

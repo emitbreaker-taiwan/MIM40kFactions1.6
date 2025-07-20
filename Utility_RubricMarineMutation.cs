@@ -13,91 +13,82 @@ namespace MIM40kFactions
     {
         public static void DoMutationConsideration(Pawn EMCM_TSvictim)
         {
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.TS"))
+            Faction homeFaction = EMCM_TSvictim.HomeFaction;
+            BackstoryDef childhood = EMCM_TSvictim.story.Childhood;
+            BackstoryDef adulthood = EMCM_TSvictim.story.Adulthood;
+
+            if (ModsConfig.RoyaltyActive && EMCM_TSvictim.HasPsylink)
             {
-                Faction homeFaction = EMCM_TSvictim.HomeFaction;
-                BackstoryDef childhood = EMCM_TSvictim.story.Childhood;
-                BackstoryDef adulthood = EMCM_TSvictim.story.Adulthood;
+                DoMakeSorcerer(EMCM_TSvictim, homeFaction, childhood, adulthood);
+                return;
+            }
 
-                if (ModsConfig.RoyaltyActive && EMCM_TSvictim.HasPsylink)
+            if (EMCM_TSvictim.story.traits.HasTrait(TraitDef.Named("PsychicSensitivity"), 2) || EMCM_TSvictim.story.traits.HasTrait(TraitDef.Named("PsychicSensitivity"), 1))
+            {
+                DoMakeSorcerer(EMCM_TSvictim, homeFaction, childhood, adulthood);
+                return;
+            }
+
+            Hediff tsGeneseed1 = EMCM_TSvictim.health.hediffSet.GetFirstHediffOfDef(HediffDef.Named("EMCM_TSGeneSeed"));
+            Hediff tsGeneseed2 = EMCM_TSvictim.health.hediffSet.GetFirstHediffOfDef(HediffDef.Named("EMCM_TSGeneSeedNPC"));
+
+            if (tsGeneseed1 != null || tsGeneseed2 != null)
+            {
+                System.Random rand = new System.Random();
+
+                if (EMCM_TSvictim.story.traits.HasTrait(TraitDef.Named("PsychicSensitivity"), -1) || EMCM_TSvictim.story.traits.HasTrait(TraitDef.Named("PsychicSensitivity"), -2))
+                {
+                    DoMakeRubricae(EMCM_TSvictim, homeFaction, childhood, adulthood);
+                    return;
+                }
+
+                int mutationSeed = rand.Next(1, 100);
+
+                if (mutationSeed > 99)
                 {
                     DoMakeSorcerer(EMCM_TSvictim, homeFaction, childhood, adulthood);
                     return;
                 }
 
-                if (EMCM_TSvictim.story.traits.HasTrait(TraitDef.Named("PsychicSensitivity"), 2) || EMCM_TSvictim.story.traits.HasTrait(TraitDef.Named("PsychicSensitivity"), 1))
+                if (mutationSeed > 0)
                 {
-                    DoMakeSorcerer(EMCM_TSvictim, homeFaction, childhood, adulthood);
+                    DoMakeRubricae(EMCM_TSvictim, homeFaction, childhood, adulthood);
                     return;
                 }
-
-                Hediff tsGeneseed1 = EMCM_TSvictim.health.hediffSet.GetFirstHediffOfDef(HediffDef.Named("EMCM_TSGeneSeed"));
-                Hediff tsGeneseed2 = EMCM_TSvictim.health.hediffSet.GetFirstHediffOfDef(HediffDef.Named("EMCM_TSGeneSeedNPC"));
-
-                if (tsGeneseed1 != null || tsGeneseed2 != null)
-                {
-                    System.Random rand = new System.Random();
-
-                    if (EMCM_TSvictim.story.traits.HasTrait(TraitDef.Named("PsychicSensitivity"), -1) || EMCM_TSvictim.story.traits.HasTrait(TraitDef.Named("PsychicSensitivity"), -2))
-                    {
-                        DoMakeRubricae(EMCM_TSvictim, homeFaction, childhood, adulthood);
-                        return;
-                    }
-
-                    int mutationSeed = rand.Next(1, 100);
-
-                    if (mutationSeed > 99)
-                    {
-                        DoMakeSorcerer(EMCM_TSvictim, homeFaction, childhood, adulthood);
-                        return;
-                    }
-
-                    if (mutationSeed > 0)
-                    {
-                        DoMakeRubricae(EMCM_TSvictim, homeFaction, childhood, adulthood);
-                        return;
-                    }
-                }
-                else
-                {
-                    Log.Error("Pawn has no Thousand Sons Gene-Seed in props");
-                    return;
-                }
+            }
+            else
+            {
+                Log.Error("Pawn has no Thousand Sons Gene-Seed in props");
+                return;
             }
         }
         private static void DoMakeSorcerer(Pawn EMCM_TSvictim, Faction homeFaction, BackstoryDef childhood, BackstoryDef adulthood)
         {
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.TS"))
-            {
-                if (ModsConfig.BiotechActive == true)
-                    EMCM_TSvictim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMCM_HereticAstartes_ThousandSons"));
+            if (ModsConfig.BiotechActive == true)
+                EMCM_TSvictim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMCM_HereticAstartes_ThousandSons"));
 
-                EMCM_TSvictim.kindDef = PawnKindDef.Named("EMTS_Mutation_Sorcerer");
-                SetPawnBaseStats(EMCM_TSvictim, homeFaction, childhood, adulthood);
+            EMCM_TSvictim.kindDef = PawnKindDef.Named("EMTS_Mutation_Sorcerer");
+            SetPawnBaseStats(EMCM_TSvictim, homeFaction, childhood, adulthood);
 
-                if (ModsConfig.RoyaltyActive == true)
-                    ChangePsylinkLevel(EMCM_TSvictim, false);
+            if (ModsConfig.RoyaltyActive == true)
+                ChangePsylinkLevel(EMCM_TSvictim, false);
 
-                BodyPartRecord targetPart = EMCM_TSvictim.health.hediffSet.GetBrain();
-                EMCM_TSvictim.health.AddHediff(HediffDef.Named("EMTS_WarpPotential"), targetPart);
-                return;
-            }
+            BodyPartRecord targetPart = EMCM_TSvictim.health.hediffSet.GetBrain();
+            EMCM_TSvictim.health.AddHediff(HediffDef.Named("EMTS_WarpPotential"), targetPart);
+            return;
         }
         private static void DoMakeRubricae(Pawn EMCM_TSvictim, Faction homeFaction, BackstoryDef childhood, BackstoryDef adulthood)
         {
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.TS"))
-            {
-                if (ModsConfig.BiotechActive == true)
-                    EMCM_TSvictim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMCM_HereticAstartes"));
+            if (ModsConfig.BiotechActive == true)
+                EMCM_TSvictim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMCM_HereticAstartes"));
 
-                EMCM_TSvictim.kindDef = PawnKindDef.Named("EMTS_Mutation_RubricMarine");
-                SetPawnBaseStats(EMCM_TSvictim, homeFaction, childhood, adulthood);
-                SetCosmetics(EMCM_TSvictim);
+            EMCM_TSvictim.kindDef = PawnKindDef.Named("EMTS_Mutation_RubricMarine");
+            SetPawnBaseStats(EMCM_TSvictim, homeFaction, childhood, adulthood);
+            SetCosmetics(EMCM_TSvictim);
 
-                BodyPartRecord targetPart = EMCM_TSvictim.health.hediffSet.GetNotMissingParts().FirstOrDefault(part => part.def == BodyPartDefOf.Torso);
-                EMCM_TSvictim.health.AddHediff(HediffDef.Named("EMTS_RubricofAhriman"), targetPart);
-                return;
-            }
+            BodyPartRecord targetPart = EMCM_TSvictim.health.hediffSet.GetNotMissingParts().FirstOrDefault(part => part.def == BodyPartDefOf.Torso);
+            EMCM_TSvictim.health.AddHediff(HediffDef.Named("EMTS_RubricofAhriman"), targetPart);
+            return;
         }
         private static void SetPawnBaseStats(Pawn EMCM_TSvictim, Faction homeFaction, BackstoryDef childhood, BackstoryDef adulthood)
         {

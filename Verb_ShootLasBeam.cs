@@ -424,115 +424,6 @@ namespace MIM40kFactions
             }
         }
 
-        //private HashSet<IntVec3> AffectedCells(IntVec3 target, HashSet<IntVec3> tmpCells)
-        //{
-        //    tmpCells.Clear();
-        //    Vector3 vector = Caster.Position.ToVector3Shifted().Yto0();
-        //    IntVec3 intVec = target.ClampInsideMap(Caster.Map);
-        //    if (Caster.Position == intVec)
-        //    {
-        //        return tmpCells;
-        //    }
-
-        //    float lengthHorizontal = (intVec - Caster.Position).LengthHorizontal;
-        //    float num = (float)(intVec.x - Caster.Position.x) / lengthHorizontal;
-        //    float num2 = (float)(intVec.z - Caster.Position.z) / lengthHorizontal;
-        //    intVec.x = Mathf.RoundToInt((float)Caster.Position.x + num * verbProps.range);
-        //    intVec.z = Mathf.RoundToInt((float)Caster.Position.z + num2 * verbProps.range);
-        //    float target2 = Vector3.SignedAngle(intVec.ToVector3Shifted().Yto0() - vector, Vector3.right, Vector3.up);
-        //    float num3 = lineWidthEnd / 2f;
-        //    float num4 = Mathf.Sqrt(Mathf.Pow((intVec - Caster.Position).LengthHorizontal, 2f) + Mathf.Pow(num3, 2f));
-        //    float num5 = 57.29578f * Mathf.Asin(num3 / num4);
-        //    int num6 = GenRadial.NumCellsInRadius(verbProps.range < GenRadial.MaxRadialPatternRadius ? verbProps.range : GenRadial.MaxRadialPatternRadius - 0.1f);
-        //    for (int i = 0; i < num6; i++)
-        //    {
-        //        IntVec3 intVec2 = Caster.Position + GenRadial.RadialPattern[i];
-        //        if (CanUseCell(intVec2) && Mathf.Abs(Mathf.DeltaAngle(Vector3.SignedAngle(intVec2.ToVector3Shifted().Yto0() - vector, Vector3.right, Vector3.up), target2)) <= num5)
-        //        {
-        //            tmpCells.Add(intVec2);
-        //        }
-        //    }
-
-        //    List<IntVec3> list = GenSight.BresenhamCellsBetween(Caster.Position, target);
-        //    for (int j = 0; j < list.Count; j++)
-        //    {
-        //        IntVec3 intVec3 = list[j];
-        //        if (!tmpCells.Contains(intVec3) && CanUseCell(intVec3))
-        //        {
-        //            tmpCells.Add(intVec3);
-        //        }
-        //    }
-
-        //    if (compWeaponAbilities == null || !compWeaponAbilities.Props.isPenetration)
-        //    {
-        //        HashSet<IntVec3> removeCells = new HashSet<IntVec3>();
-        //        List<Pawn> pawnList = new List<Pawn>();
-        //        foreach (IntVec3 cell in tmpCells)
-        //        {
-        //            if (cell.GetFirstPawn(Caster.Map) != null && cell.GetFirstPawn(Caster.Map) != CasterPawn)
-        //            {
-        //                pawnList.Add(cell.GetFirstPawn(Caster.Map));
-        //            }
-        //            if (pawnList.Count > 0)
-        //            {
-        //                if (cell != pawnList[0].Position && cell.GetFirstPawn(Caster.Map) != null)
-        //                {
-        //                    removeCells.Add(cell);
-        //                }
-        //                if (cell.GetFirstPawn(Caster.Map) == null && DistanceCalculator(Caster.Position, pawnList[0].Position) < DistanceCalculator(Caster.Position, cell))
-        //                {
-        //                    removeCells.Add(cell);
-        //                }
-        //                if (pawnList[0].Position != target)
-        //                {
-        //                    removeCells.Add(target);
-        //                }
-        //            }
-        //        }
-
-        //        foreach (IntVec3 cell in removeCells)
-        //        {
-        //            if (tmpCells.Contains(cell))
-        //            {
-        //                tmpCells.Remove(cell);
-        //            }
-        //        }
-        //    }
-
-        //    return tmpCells;
-
-        //    bool CanUseCell(IntVec3 c)
-        //    {
-        //        if (!c.InBounds(Caster.Map))
-        //        {
-        //            return false;
-        //        }
-
-        //        if (c == Caster.Position)
-        //        {
-        //            return false;
-        //        }
-
-        //        if (!canHitFilledCells && c.Filled(Caster.Map))
-        //        {
-        //            return false;
-        //        }
-
-        //        if (!c.InHorDistOf(Caster.Position, DistanceCalculator(Caster.Position, target.ClampInsideMap(Caster.Map))))
-        //        {
-        //            return false;
-        //        }
-
-        //        if (!c.InHorDistOf(Caster.Position, verbProps.range))
-        //        {
-        //            return false;
-        //        }
-
-        //        ShootLine resultingLine;
-        //        return TryFindShootLineFromTo(Caster.Position, c, out resultingLine);
-        //    }
-        //}
-
         protected virtual List<IntVec3> AffectedCells(IntVec3 target, List<IntVec3> tmpCells)
         {
             tmpCells.Clear();
@@ -556,7 +447,7 @@ namespace MIM40kFactions
             for (int i = 0; i < num6; i++)
             {
                 IntVec3 intVec2 = Caster.Position + GenRadial.RadialPattern[i];
-                if (CanUseCell(intVec2) && Mathf.Abs(Mathf.DeltaAngle(Vector3.SignedAngle(intVec2.ToVector3Shifted().Yto0() - vector, Vector3.right, Vector3.up), target2)) <= num5)
+                if (CanUseCell(intVec2, target) && Mathf.Abs(Mathf.DeltaAngle(Vector3.SignedAngle(intVec2.ToVector3Shifted().Yto0() - vector, Vector3.right, Vector3.up), target2)) <= num5)
                 {
                     tmpCells.Add(intVec2);
                 }
@@ -566,7 +457,7 @@ namespace MIM40kFactions
             for (int j = 0; j < list.Count; j++)
             {
                 IntVec3 intVec3 = list[j];
-                if (!tmpCells.Contains(intVec3) && CanUseCell(intVec3))
+                if (!tmpCells.Contains(intVec3) && CanUseCell(intVec3, target))
                 {
                     tmpCells.Add(intVec3);
                 }
@@ -613,37 +504,43 @@ namespace MIM40kFactions
             }
 
             return tmpCells;
+        }
 
-            bool CanUseCell(IntVec3 c)
+        private bool CanUseCell(IntVec3 c, IntVec3 target)
+        {
+            if (!c.InBounds(Caster.Map))
             {
-                if (!c.InBounds(Caster.Map))
-                {
-                    return false;
-                }
-
-                if (c == Caster.Position)
-                {
-                    return false;
-                }
-
-                if (!canHitFilledCells && c.Filled(Caster.Map))
-                {
-                    return false;
-                }
-
-                if (!c.InHorDistOf(Caster.Position, DistanceCalculator(Caster.Position, target.ClampInsideMap(Caster.Map))))
-                {
-                    return false;
-                }
-
-                if (!c.InHorDistOf(Caster.Position, verbProps.range))
-                {
-                    return false;
-                }
-
-                ShootLine resultingLine;
-                return TryFindShootLineFromTo(Caster.Position, c, out resultingLine);
+                return false;
             }
+
+            if (c == Caster.Position)
+            {
+                return false;
+            }
+
+            // Exclude all cells occupied by the caster only if the caster is a building
+            if (Caster.def.category == ThingCategory.Building && Caster.OccupiedRect().Contains(c))
+            {
+                return false;
+            }
+
+            if (!canHitFilledCells && c.Filled(Caster.Map))
+            {
+                return false;
+            }
+
+            if (!c.InHorDistOf(Caster.Position, DistanceCalculator(Caster.Position, target.ClampInsideMap(Caster.Map))))
+            {
+                return false;
+            }
+
+            if (!c.InHorDistOf(Caster.Position, verbProps.range))
+            {
+                return false;
+            }
+
+            ShootLine resultingLine;
+            return TryFindShootLineFromTo(Caster.Position, c, out resultingLine);
         }
 
         private void ApplyDamage(Thing thing, IntVec3 sourceCell, float damageFactor = 1f)

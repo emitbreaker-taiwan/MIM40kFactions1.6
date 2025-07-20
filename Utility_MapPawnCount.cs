@@ -11,6 +11,7 @@ namespace MIM40kFactions
     {
         private static int cachedTick = -9999;
         private static Dictionary<ThingDef, int> cachedThingCountByDef = new Dictionary<ThingDef, int>();
+        private static Dictionary<(Map, IEnumerable<ThingDef>), int> cachedThingCountByDefs = new Dictionary<(Map, IEnumerable<ThingDef>), int>(new MapAndDefsComparer());
 
         // Generalized method to count pawns by ThingDef (could be PawnKindDef or any other def type)
         public static int GetThingCountByDef(ThingDef def, Map map)
@@ -41,11 +42,21 @@ namespace MIM40kFactions
             if (defs == null || map == null)
                 return 0;
 
+            // Check if the result is already cached
+            var key = (map, defs);
+            if (cachedThingCountByDefs.TryGetValue(key, out int cachedCount))
+            {
+                return cachedCount;
+            }
+
+            // Calculate the total count and cache the result
             int totalCount = 0;
             foreach (var def in defs)
             {
                 totalCount += GetThingCountByDef(def, map);
             }
+
+            cachedThingCountByDefs[key] = totalCount;
             return totalCount;
         }
 
@@ -55,10 +66,37 @@ namespace MIM40kFactions
             return GetThingCountByDefs((IEnumerable<ThingDef>)defs, map);
         }
 
+        private class MapAndDefsComparer : IEqualityComparer<(Map, IEnumerable<ThingDef>)>
+        {
+            public bool Equals((Map, IEnumerable<ThingDef>) x, (Map, IEnumerable<ThingDef>) y)
+            {
+                return x.Item1 == y.Item1 && x.Item2.SequenceEqual(y.Item2);
+            }
+
+            public int GetHashCode((Map, IEnumerable<ThingDef>) obj)
+            {
+                int hash = obj.Item1.GetHashCode();
+                foreach (var def in obj.Item2)
+                {
+                    hash = CombineHashCodes(hash, def.GetHashCode());
+                }
+                return hash;
+            }
+
+            private static int CombineHashCodes(int h1, int h2)
+            {
+                unchecked
+                {
+                    return ((h1 << 5) + h1) ^ h2;
+                }
+            }
+        }
+
         // Sync method for clearing cache to ensure consistency
         public static void ClearCache()
         {
             cachedThingCountByDef.Clear();
+            cachedThingCountByDefs.Clear();
         }
 
         // Ensure cache synchronization when the game tick updates

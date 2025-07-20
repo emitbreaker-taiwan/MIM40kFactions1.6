@@ -21,7 +21,7 @@ namespace MIM40kFactions
 
         public override void Apply(LocalTargetInfo target, LocalTargetInfo dest)
         {
-            if (!Utility_TargetValidator.IsValidTargetForAbility(target.Thing, Pawn, Props))
+            if (!Utility_TargetValidator.IsValidTargetForAbility(target.Thing, Pawn, Props.targetHostilesOnly, Props.targetNeutralBuildings, ShootVerb.verbProps.targetParams.canTargetLocations))
             {
                 return;
             }
@@ -50,7 +50,7 @@ namespace MIM40kFactions
                 MoteMaker.ThrowText(Pawn.DrawPos, Pawn.Map, "EMWH_WeaponAbilities_Hazardous".Translate(), Color.red);
             }
             if (!Utility_WeaponStatChanger.IsHazardousCalculator())
-                GenExplosion.DoExplosion(target.Cell, parent.pawn.MapHeld, 0f, Props.damageDef, Pawn, postExplosionSpawnThingDef: Props.postExplosionSpawnThingDef, damAmount: damAmount, armorPenetration: armorPenetration, explosionSound: null, weapon: null, projectile: null, intendedTarget: null, postExplosionSpawnChance: Props.postExplosionSpawnChance, postExplosionSpawnThingCount: Props.postExplosionSpawnThingCount, postExplosionGasType: Props.postExplosionGasType, applyDamageToExplosionCellsNeighbors: Props.applyDamageToExplosionCellsNeighbors, preExplosionSpawnThingDef: Props.preExplosionSpawnThingDef, preExplosionSpawnChance: Props.preExplosionSpawnChance, preExplosionSpawnThingCount: Props.preExplosionSpawnThingCount, chanceToStartFire: Props.chanceToStartFire, damageFalloff: false, direction: null, ignoredThings: null, affectedAngle: null, doVisualEffects: false, propagationSpeed: 0.6f, excludeRadius: 0f, doSoundEffects: false, postExplosionSpawnThingDefWater: Props.postExplosionSpawnThingDefWater, screenShakeFactor: 1f, flammabilityChanceCurve: ShootVerb.verbProps.flammabilityAttachFireChanceCurve, overrideCells: AffectedCells(target));
+                GenExplosion.DoExplosion(target.Cell, parent.pawn.MapHeld, Props.range, Props.damageDef, Pawn, postExplosionSpawnThingDef: Props.postExplosionSpawnThingDef, damAmount: damAmount, armorPenetration: armorPenetration, explosionSound: null, weapon: null, projectile: null, intendedTarget: null, postExplosionSpawnChance: Props.postExplosionSpawnChance, postExplosionSpawnThingCount: Props.postExplosionSpawnThingCount, postExplosionGasType: Props.postExplosionGasType, applyDamageToExplosionCellsNeighbors: Props.applyDamageToExplosionCellsNeighbors, preExplosionSpawnThingDef: Props.preExplosionSpawnThingDef, preExplosionSpawnChance: Props.preExplosionSpawnChance, preExplosionSpawnThingCount: Props.preExplosionSpawnThingCount, chanceToStartFire: Props.chanceToStartFire, damageFalloff: false, direction: null, ignoredThings: null, affectedAngle: null, doVisualEffects: false, propagationSpeed: 0.6f, excludeRadius: 0f, doSoundEffects: false, postExplosionSpawnThingDefWater: Props.postExplosionSpawnThingDefWater, screenShakeFactor: 1f, flammabilityChanceCurve: ShootVerb.verbProps.flammabilityAttachFireChanceCurve, overrideCells: AffectedCells(target));
             Pawn.records.Increment(RecordDefOf.ShotsFired);
             base.Apply(target, dest);
         }
@@ -116,14 +116,14 @@ namespace MIM40kFactions
                 {
                     if (thing is Pawn p)
                     {
-                        if (!Utility_TargetValidator.IsValidTargetForAbility(p, Pawn, Props))
+                        if (!Utility_TargetValidator.IsValidTargetForAbility(p, Pawn, Props.targetHostilesOnly, Props.targetNeutralBuildings, ShootVerb.verbProps.targetParams.canTargetLocations))
                         {
                             return false; // ❌ Friendly or invalid pawn would be hit
                         }
                     }
                     else
                     {
-                        if (!Utility_TargetValidator.IsValidTargetForAbility(thing, Pawn, Props))
+                        if (!Utility_TargetValidator.IsValidTargetForAbility(thing, Pawn, Props.targetHostilesOnly, Props.targetNeutralBuildings, ShootVerb.verbProps.targetParams.canTargetLocations))
                         {
                             return false; // ❌ Friendly or neutral structure would be hit
                         }

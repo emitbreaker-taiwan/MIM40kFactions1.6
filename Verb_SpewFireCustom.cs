@@ -186,32 +186,38 @@ namespace MIM40kFactions
             }
 
             return tmpCells;
+        }
 
-            bool CanUseCell(IntVec3 c)
+        private bool CanUseCell(IntVec3 c)
+        {
+            if (!c.InBounds(Caster.Map))
             {
-                if (!c.InBounds(Caster.Map))
-                {
-                    return false;
-                }
-
-                if (c == Caster.Position)
-                {
-                    return false;
-                }
-
-                if (!canHitFilledCells && c.Filled(Caster.Map))
-                {
-                    return false;
-                }
-
-                if (!c.InHorDistOf(Caster.Position, verbProps.range))
-                {
-                    return false;
-                }
-
-                ShootLine resultingLine;
-                return TryFindShootLineFromTo(Caster.Position, c, out resultingLine);
+                return false;
             }
+
+            if (c == Caster.Position)
+            {
+                return false;
+            }
+
+            // Exclude all cells occupied by the caster only if the caster is a building
+            if (Caster.def.category == ThingCategory.Building && Caster.OccupiedRect().Contains(c))
+            {
+                return false;
+            }
+
+            if (!canHitFilledCells && c.Filled(Caster.Map))
+            {
+                return false;
+            }
+
+            if (!c.InHorDistOf(Caster.Position, verbProps.range))
+            {
+                return false;
+            }
+
+            ShootLine resultingLine;
+            return TryFindShootLineFromTo(Caster.Position, c, out resultingLine);
         }
     }
 }

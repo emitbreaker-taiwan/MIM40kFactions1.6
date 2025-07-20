@@ -330,6 +330,111 @@ namespace MIM40kFactions
             return false;
         }
 
+        public static void ValidateArmorDependencies(Pawn pawn)
+        {
+            if (pawn.apparel?.WornApparel == null)
+            {
+                return;
+            }
+
+            // Create a copy of the WornApparel list to avoid concurrent modification
+            List<Apparel> wornApparelCopy = new List<Apparel>(pawn.apparel.WornApparel);
+            List<Apparel> toDrop = new List<Apparel>();
+
+            foreach (Apparel apparel in wornApparelCopy)
+            {
+                ApparelRestrictionbyArmorsExtension modExtension = apparel.def.GetModExtension<ApparelRestrictionbyArmorsExtension>();
+                if (modExtension?.requiredArmors != null)
+                {
+                    bool hasDependency = false;
+
+                    foreach (Apparel wornApparel in wornApparelCopy)
+                    {
+                        if (wornApparel == apparel) continue;
+
+                        if (modExtension.requiredArmors.Contains(wornApparel.def))
+                        {
+                            hasDependency = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasDependency)
+                    {
+                        toDrop.Add(apparel);
+                    }
+                }
+            }
+
+            foreach (Apparel apparel in toDrop)
+            {
+                if (pawn.apparel.WornApparel.Contains(apparel)) // Ensure the item is still in the list
+                {
+                    if (!pawn.apparel.TryDrop(apparel, out _, pawn.PositionHeld, forbid: false))
+                    {
+                        Log.Error($"Failed to drop apparel {apparel.Label} for pawn {pawn.Name}.");
+                    }
+                    else
+                    {
+                        Messages.Message("EMWH_ArmorDependencyRemoved".Translate(apparel.Label), MessageTypeDefOf.NegativeEvent);
+                    }
+                }
+            }
+        }
+
+        public static void ValidateApparelDependencies(Pawn pawn)
+        {
+            if (pawn.apparel?.WornApparel == null)
+            {
+                return;
+            }
+
+            // Create a copy of the WornApparel list to avoid concurrent modification
+            List<Apparel> wornApparelCopy = new List<Apparel>(pawn.apparel.WornApparel);
+            List<Apparel> toDrop = new List<Apparel>();
+
+            foreach (Apparel apparel in wornApparelCopy)
+            {
+                ApparelRestrictionbyapparelTagsExtension modExtension = apparel.def.GetModExtension<ApparelRestrictionbyapparelTagsExtension>();
+                if (modExtension?.requiredapparelTags != null)
+                {
+                    bool hasDependency = false;
+
+                    foreach (Apparel wornApparel in wornApparelCopy)
+                    {
+                        if (wornApparel == apparel) continue;
+
+                        ApparelProperties wornApparelProps = wornApparel.def.apparel;
+                        if (wornApparelProps?.tags != null && wornApparelProps.tags.Intersect(modExtension.requiredapparelTags).Any())
+                        {
+                            hasDependency = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasDependency)
+                    {
+                        toDrop.Add(apparel);
+                    }
+                }
+            }
+
+            foreach (Apparel apparel in toDrop)
+            {
+                if (pawn.apparel.WornApparel.Contains(apparel)) // Ensure the item is still in the list
+                {
+                    if (!pawn.apparel.TryDrop(apparel, out _, pawn.PositionHeld, forbid: false))
+                    {
+                        Log.Error($"Failed to drop apparel {apparel.Label} for pawn {pawn.Name}.");
+                    }
+                    else
+                    {
+                        Messages.Message("EMWH_ApparelDependencyRemoved".Translate(apparel.Label), MessageTypeDefOf.NegativeEvent);
+                    }
+                }
+            }
+        }
+
         //public static bool PawnCanWearbyHediff(Apparel __instance, Pawn pawn, bool __result)
         //{
         //    ApparelRestrictionbyHediffExtension modExtension = __instance.def.GetModExtension<ApparelRestrictionbyHediffExtension>();

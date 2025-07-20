@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime;
 using System.Text;
 using UnityEngine;
 using Verse;
@@ -59,6 +60,13 @@ namespace MIM40kFactions
             //    }), postfix: new HarmonyMethod(typeof(EMWH_ApparelRestrictionPatch).GetMethod("PawnCanWearbyHediffPostfix")));
             harmony.Patch(AccessTools.Method(typeof(Pawn_ApparelTracker), "Wear", new System.Type[3] { typeof(Apparel), typeof(bool), typeof(bool) }), new HarmonyMethod(typeof(EMWH_ApparelRestrictionPatch).GetMethod("PawnApparelTrackerWearPrefix")));
             harmony.Patch(AccessTools.Method(typeof(PreceptComp_Apparel), "GiveApparelToPawn", new System.Type[2]{typeof (Pawn),typeof (Precept_Apparel)}), new HarmonyMethod(typeof(EMWH_ApparelRestrictionPatch).GetMethod("GiveApparelToPawnPrefix")));
+            harmony.Patch(AccessTools.Method(typeof(Pawn_ApparelTracker), "TryDrop", new System.Type[]
+                {
+                        typeof(Apparel),
+                        typeof(Apparel).MakeByRefType(),
+                        typeof(IntVec3),
+                        typeof(bool)
+                }), postfix: new HarmonyMethod(typeof(EMWH_ApparelRestrictionPatch).GetMethod("TryDropPostfix")));
 
             //harmony.Patch(AccessTools.Method(typeof(PawnApparelGenerator), "GenerateStartingApparelFor", new System.Type[2] { typeof(Pawn), typeof(PawnGenerationRequest) }), postfix: new HarmonyMethod(typeof(EMWH_ApparelRestrictionPatch).GetMethod("GenerateStartingApparelForPostfix")));
 
@@ -169,6 +177,8 @@ namespace MIM40kFactions
             //KillHAR
             harmony.Patch(AccessTools.Method(typeof(TattooDef), "GraphicFor", new System.Type[2] { typeof(Pawn), typeof(Color) }), prefix: new HarmonyMethod(typeof(EMWH_KillHARPatch).GetMethod("KillHARTranspilerforNonHARPanwsPrefix")));
 
+            //RemoveCustomMechs
+            harmony.Patch(AccessTools.Method(typeof(GenStep_SleepingMechanoids), "SendMechanoidsToSleepImmediately", new System.Type[1] { typeof(List<Pawn>) }), prefix: new HarmonyMethod(typeof(EMWH_RemoveCustomMechs).GetMethod("SendMechanoidsToSleepImmediatelyPrefix")));
         }
     }
 
@@ -383,7 +393,7 @@ namespace MIM40kFactions
                 Vector2 drawSize = Vector2.one;
                 Color color = Color.clear; // Fully transparent
 
-                __result = GraphicDatabase.Get<Graphic_Multi>("PawnRenderNode/InvisibleHead", shader, drawSize, color);
+                __result = GraphicDatabase.Get<Graphic_Multi>("Things/Pawn/Humanlike/Heads/EMWH_InvisibleHead/Male_Average_Normal", shader, drawSize, color);
             }
         }
 
@@ -438,7 +448,7 @@ namespace MIM40kFactions
             if (modExtension == null)
                 return;
 
-            float scaling = Utility_BodySnatcherManager.GetScaling(pawn, isHeadPart: true);
+            float scaling = Utility_BodySnatcherManager.GetScaling(pawn, isHeadPart: false);
             __result *= scaling;
         }
 
@@ -513,9 +523,6 @@ namespace MIM40kFactions
         {
             // ─── 1) Only valid, non-dessicated humanlike pawns ────────────────────
             if (!Utility_PawnValidationManager.IsNotDessicatedHumanlikePawn(parms.pawn))
-                return;
-
-            if (ModsConfig.IsActive("Nals.FacialAnimation"))
                 return;
 
             var modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(parms.pawn);
@@ -758,6 +765,36 @@ namespace MIM40kFactions
             }
 
             return true;
+        }
+
+        [HarmonyPostfix]
+        public static void TryDropPostfix(Pawn_ApparelTracker __instance, Apparel ap, ref bool __result, ref Apparel resultingAp)
+        {
+            // Ensure the item was successfully dropped
+            if (!__result || ap == null)
+            {
+                return;
+            }
+
+            // Get the pawn associated with the apparel tracker
+            Pawn pawn = __instance.pawn;
+
+            // Ensure the dropped item is placed on the ground
+            if (resultingAp == null)
+            {
+                Log.Warning($"Apparel {ap.Label} was not properly dropped for pawn {pawn.Name}. Attempting to place it manually.");
+                IntVec3 dropLocation = pawn.PositionHeld;
+                if (pawn.MapHeld != null)
+                {
+                    GenPlace.TryPlaceThing(ap, dropLocation, pawn.MapHeld, ThingPlaceMode.Near);
+                }
+            }
+
+            // Validate armor dependencies
+            Utility_ApparelRestriction.ValidateArmorDependencies(pawn);
+
+            // Validate apparel tag dependencies
+            Utility_ApparelRestriction.ValidateApparelDependencies(pawn);
         }
     }
 
@@ -1513,6 +1550,32 @@ namespace MIM40kFactions
                 __result = null;
                 return false; // Prevents HAR's transpiled logic from running
             }
+
+            return true; // Allow HAR logic to run for HAR pawns
+        }
+    }
+
+    public static class EMWH_RemoveCustomMechs
+    {
+        [HarmonyPrefix]
+        public static bool SendMechanoidsToSleepImmediatelyPrefix(List<Pawn> spawnedMechanoids)
+        {
+            if (spawnedMechanoids == null || spawnedMechanoids.Count == 0)
+            {
+                return true; // No mechanoids to process
+            }
+
+            var newList = new List<Pawn>();
+
+            foreach (var pawn in spawnedMechanoids)
+            {
+                if (pawn.def.GetModExtension<IsMIMMechanoidExtension>() == null)
+                {
+                    newList.Add(pawn);
+                }
+            }
+
+            spawnedMechanoids = newList;
 
             return true; // Allow HAR logic to run for HAR pawns
         }

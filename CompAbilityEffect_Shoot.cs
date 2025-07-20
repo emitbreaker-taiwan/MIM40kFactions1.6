@@ -78,7 +78,7 @@ namespace MIM40kFactions
                     return;
                 }
 
-                if (Props.targetHostilesOnly && !Utility_TargetValidator.IsValidTargetForAbility(currentBurstTarget.Thing, caster, Props))
+                if (Props.targetHostilesOnly && !Utility_TargetValidator.IsValidTargetForAbility(currentBurstTarget.Thing, caster, Props.targetHostilesOnly, Props.targetNeutralBuildings, ShootVerb.verbProps.targetParams.canTargetLocations))
                 {
                     burstShotsLeft = 0;
                     return;
@@ -225,10 +225,10 @@ namespace MIM40kFactions
                 if (target.Pawn == parent.pawn)
                     return false;
 
-                if (Props.targetHostilesOnly && !Utility_TargetValidator.IsValidTargetForAbility(currentBurstTarget.Thing, caster, Props))
+                if (Props.targetHostilesOnly && !Utility_TargetValidator.IsValidTargetForAbility(currentBurstTarget.Thing, caster, Props.targetHostilesOnly, Props.targetNeutralBuildings, ShootVerb.verbProps.targetParams.canTargetLocations))
                     return false;
             }
-            else if (Props.targetHostilesOnly && !Utility_TargetValidator.IsValidTargetForAbility(currentBurstTarget.Thing, caster, Props)) // ✅ Add this
+            else if (Props.targetHostilesOnly && !Utility_TargetValidator.IsValidTargetForAbility(currentBurstTarget.Thing, caster, Props.targetHostilesOnly, Props.targetNeutralBuildings, ShootVerb.verbProps.targetParams.canTargetLocations)) // ✅ Add this
             {
                 return false;
             }

@@ -11,8 +11,22 @@ namespace MIM40kFactions
     {
         public HediffCompProperties_GiveXenotype Props => (HediffCompProperties_GiveXenotype)props;
 
+        private ModSettings_MIMWH40kFactions Settings;
         public override void CompPostPostAdd(DamageInfo? dinfo)
         {
+            if (!ModsConfig.BiotechActive)
+            {
+                if (Settings.debugMode)
+                    Log.Message("[MIM Debug] HediffComp_GiveXenotype: Biotech is not activated. Skip this function.");
+                return;
+            }
+            if (Props == null || parent?.pawn == null || parent.pawn.kindDef == null || parent.pawn.genes == null)
+            {
+                if (Settings.debugMode)
+                    Log.Error("[MIM Debug] HediffComp_GiveXenotype: Props or parent.pawn or its properties are null.");
+                return;
+            }
+
             if (Props.targetRaceDef != null && parent.pawn.kindDef.race == ThingDefOf.Human)
             {
                 if (ModsConfig.BiotechActive && parent.pawn.genes.Xenotype == XenotypeDefOf.Baseliner)

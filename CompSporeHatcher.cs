@@ -7,7 +7,6 @@ using UnityEngine;
 using RimWorld;
 using Verse;
 using RimWorld.Planet;
-using static MIM40kFactions.CompProperties_SporeHatcher;
 
 namespace MIM40kFactions
 {

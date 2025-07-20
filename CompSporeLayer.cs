@@ -99,11 +99,34 @@ namespace MIM40kFactions
             Scribe_References.Look(ref fertilizedBy, "fertilizedBy");
         }
 
-        public override void CompTick()
+        //public override void CompTick()
+        //{
+        //    if (Active)
+        //    {
+        //        float num = 1f / (Props.sporeLayIntervalDays * 60000f);
+        //        if (parent is Pawn pawn)
+        //        {
+        //            num *= PawnUtility.BodyResourceGrowthSpeed(pawn);
+        //        }
+
+        //        sporeProgress += num;
+        //        if (sporeProgress > 1f)
+        //        {
+        //            sporeProgress = 1f;
+        //        }
+
+        //        if (ProgressStoppedBecauseUnfertilized && Props.sporeProgressCanBeStoppedBecauseUnfertilized)
+        //        {
+        //            sporeProgress = Props.sporeProgressUnfertilizedMax;
+        //        }
+        //    }
+        //}
+
+        public override void CompTickRare()
         {
             if (Active)
             {
-                float num = 1f / (Props.sporeLayIntervalDays * 60000f);
+                float num = 250f / (Props.sporeLayIntervalDays * 60000f);
                 if (parent is Pawn pawn)
                 {
                     num *= PawnUtility.BodyResourceGrowthSpeed(pawn);

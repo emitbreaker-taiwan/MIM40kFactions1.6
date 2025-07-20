@@ -81,13 +81,16 @@
     <Compile Include="AbilityRestrictionExtension.cs" />
     <Compile Include="ApparelRestrictionbyRaceExtension.cs" />
     <Compile Include="ApparelRestrictionbyHediffExtension.cs" />
-    <Compile Include="CompAbilityEffect_ShootBeam.cs" />
+    <Compile Include="IsMIMMechanoidExtension.cs" />
+    <Compile Include="CompProperties_PreventDamage.cs" />
+    <Compile Include="CompPreventDamage.cs" />
+    <Compile Include="PawnRenderNodeWorker_HeadAttachmentCustom.cs" />
+    <Compile Include="PawnRenderNodeProperties_HeadAttachmentCustom.cs" />
     <Compile Include="StatPartInjector.cs" />
     <Compile Include="StatPart_VariableStatBonus.cs" />
     <Compile Include="Utility_BodySnatcherManager.cs" />
     <Compile Include="Utility_BillConfigurator.cs" />
     <Compile Include="Dialog_LoadoutConfigurator.cs" />
-    <Compile Include="ITargetingRules.cs" />
     <Compile Include="Utility_MapPawnCount.cs" />
     <Compile Include="Verb_ShootChainBeamPistol.cs" />
     <Compile Include="Verb_ArcSprayPenetratePistol.cs" />
@@ -156,7 +159,7 @@
     <Compile Include="CompConfigurator_WeaponAccuracy.cs" />
     <Compile Include="ModSettings_MIMWH40kFactions.cs" />
     <Compile Include="Mod_MIMWH40kFactions.cs" />
-    <Compile Include="CompAbilityEffect_ShootBeamOld.cs" />
+    <Compile Include="CompAbilityEffect_ShootBeam.cs" />
     <Compile Include="CompProperties_AbilityShootBeam.cs" />
     <Compile Include="LasBeamPropertiesExtension.cs" />
     <Compile Include="Verb_ArcSprayPenetrate.cs" />
