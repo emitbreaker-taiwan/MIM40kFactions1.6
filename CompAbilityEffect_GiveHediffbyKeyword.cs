@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using RimWorld;
 using Verse;
-using static UnityEngine.GraphicsBuffer;
+using MIM40kFactions.GenestealerCult;
 
 namespace MIM40kFactions
 {
@@ -254,7 +254,7 @@ namespace MIM40kFactions
         }
         private void GenestealersKissFactionAdjustment(Pawn target)
         {
-            if (!ModsConfig.IsActive("emitbreaker.MIM.WH40k.GC.Core"))
+            if (!Utility_DependencyManager.IsGCCoreActive())
             {
                 return;
             }

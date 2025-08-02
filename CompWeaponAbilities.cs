@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using UnityEngine;
 using RimWorld;
 using Verse;
-using static HarmonyLib.Code;
 
 namespace MIM40kFactions
 {
@@ -16,15 +15,10 @@ namespace MIM40kFactions
         private bool debugMode => Props.debugMode;
         private int originalBurstShot;
 
-        private bool IsCombatExtendedActive()
-        {
-            return ModsConfig.IsActive("CETeam.CombatExtended");
-        }
-
         public override void Notify_Equipped(Pawn pawn)
         {
             base.Notify_Equipped(pawn);
-            if (IsCombatExtendedActive())
+            if (Utility_DependencyManager.IsCombatExtendedActive())
             {
                 return;
             }
@@ -85,7 +79,7 @@ namespace MIM40kFactions
         public override void Notify_UsedWeapon(Pawn pawn)
         {
             base.Notify_UsedWeapon(pawn);
-            if (IsCombatExtendedActive())
+            if (Utility_DependencyManager.IsCombatExtendedActive())
             {
                 return;
             }
@@ -196,7 +190,7 @@ namespace MIM40kFactions
         public override void Notify_Unequipped(Pawn pawn)
         {
             base.Notify_Unequipped(pawn);
-            if (IsCombatExtendedActive())
+            if (Utility_DependencyManager.IsCombatExtendedActive())
             {
                 return;
             }
@@ -255,7 +249,7 @@ namespace MIM40kFactions
 
         public override string CompInspectStringExtra()
         {
-            if (parent.def == null || !parent.def.IsWeapon || ModsConfig.IsActive("CETeam.CombatExtended")) return null;
+            if (parent.def == null || !parent.def.IsWeapon || Utility_DependencyManager.IsCombatExtendedActive()) return null;
 
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("EMWH_WeaponAbilities".Translate());
@@ -286,7 +280,7 @@ namespace MIM40kFactions
 
         public override string GetDescriptionPart()
         {
-            if (parent.def == null || !parent.def.IsWeapon || ModsConfig.IsActive("CETeam.CombatExtended")) return null;
+            if (parent.def == null || !parent.def.IsWeapon || Utility_DependencyManager.IsCombatExtendedActive()) return null;
 
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("EMWH_WeaponAbilities".Translate());

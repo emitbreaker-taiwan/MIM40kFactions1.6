@@ -18,7 +18,7 @@ namespace MIM40kFactions
 
             ageTicks++;
 
-            if (!ModsConfig.IsActive("Phonicmas.40kGenes") && pawn.health.hediffSet.GetFirstHediffOfDef(def).def == HediffDef.Named("EMSM_SWGeneSeed") && pawn.health.hediffSet.GetFirstHediffOfDef(def).Severity != 19)
+            if (!Utility_DependencyManager.IsRimDarkActive() && pawn.health.hediffSet.GetFirstHediffOfDef(def).def == HediffDef.Named("EMSM_SWGeneSeed") && pawn.health.hediffSet.GetFirstHediffOfDef(def).Severity != 19)
                 return;
             DoMutation(pawn);
             return;

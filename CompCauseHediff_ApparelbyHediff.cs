@@ -14,7 +14,7 @@ namespace MIM40kFactions
 
         public override void Notify_Equipped(Pawn pawn)
         {
-            if (!pawn.Spawned)
+            if (!pawn.Spawned || Props.hediff == null)
             {
                 return;
             }
@@ -38,7 +38,7 @@ namespace MIM40kFactions
                     {
                         if (!pawn.health.hediffSet.HasHediff(hediffDef))
                         {
-                            if (ModsConfig.IsActive("Phonicmas.40kGenes") && pawn.genes.HasActiveGene(Utility_GeneManager.GeneDefNamed("BEWH_BlackCarapace")) && Props.hediffIfNotExists.Contains(HediffDef.Named("EMWH_BlackCarapace")))
+                            if (Utility_DependencyManager.IsRimDarkActive() && pawn.genes.HasActiveGene(Utility_GeneManager.GeneDefNamed("BEWH_BlackCarapace")) && Props.hediffIfNotExists.Contains(HediffDef.Named("EMWH_BlackCarapace")))
                             {
                                 continue;
                             }

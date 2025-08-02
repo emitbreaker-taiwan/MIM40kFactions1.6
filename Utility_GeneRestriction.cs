@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using MIM40kFactions.Necron;
 using RimWorld;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace MIM40kFactions
     {
         public static bool CanHaveNecronGene(GeneDef gene, ThingDef thing)
         {
-            EMNC_Necron_ValidatiorExtension modExtension = thing.GetModExtension<EMNC_Necron_ValidatiorExtension>();
+            NecronalidatiorExtension modExtension = thing.GetModExtension<NecronalidatiorExtension>();
 
             if (modExtension == null && gene == Utility_GeneManager.GeneDefNamed("EMNC_Biotransference"))
                 return false;

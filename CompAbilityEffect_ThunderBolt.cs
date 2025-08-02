@@ -30,8 +30,10 @@ namespace MIM40kFactions
             IntVec3 currentTargetCell = currentTarget.Cell;
             Pawn caster = parent.pawn;
             DamageDef damageDef = Props.damageDef;
-            if (damageDef != null)
+            if (damageDef == null)
+            {
                 damageDef = DamageDefOf.Flame;
+            }
             int burstShotCount = Props.burstShotCount;
             int damageAmount = Props.damageAmount;
             if (Props.randomBurst)
@@ -87,24 +89,23 @@ namespace MIM40kFactions
 
         private static void DoStrike(IntVec3 strikeLoc, Map map, DamageDef damageDef, int damageAmount, ref Mesh boltMesh)
         {
+            SoundDefOf.Thunder_OffMap.PlayOneShotOnCamera(map);
             if (!strikeLoc.IsValid)
             {
-                strikeLoc = CellFinderLoose.RandomCellWith(
-                    (IntVec3 sq) => sq.Standable(map) && !map.roofGrid.Roofed(sq), map);
+                strikeLoc = CellFinderLoose.RandomCellWith((IntVec3 sq) => sq.Standable(map) && !map.roofGrid.Roofed(sq), map);
             }
 
-            // 🔥 Damage
-            GenExplosion.DoExplosion(strikeLoc, map, 1.9f, damageDef, null, damageAmount);
-
-            // ⚡ Visual + Audio from thunderstorm
-            new WeatherEvent_LightningStrike(map, strikeLoc).FireEvent();
-
-            // Optional: add Flecks or Effects
-            Vector3 loc = strikeLoc.ToVector3Shifted();
-            for (int i = 0; i < 4; i++)
+            boltMesh = LightningBoltMeshPool.RandomBoltMesh;
+            if (!strikeLoc.Fogged(map))
             {
-                FleckMaker.ThrowSmoke(loc, map, 1.5f);
-                FleckMaker.ThrowMicroSparks(loc, map);
+                GenExplosion.DoExplosion(strikeLoc, map, 1.9f, damageDef, null, damageAmount);
+                Vector3 loc = strikeLoc.ToVector3Shifted();
+                for (int i = 0; i < 4; i++)
+                {
+                    FleckMaker.ThrowSmoke(loc, map, 1.5f);
+                    FleckMaker.ThrowMicroSparks(loc, map);
+                    FleckMaker.ThrowLightningGlow(loc, map, 1.5f);
+                }
             }
 
             SoundInfo info = SoundInfo.InMap(new TargetInfo(strikeLoc, map));

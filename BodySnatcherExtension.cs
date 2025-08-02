@@ -16,8 +16,13 @@ namespace MIM40kFactions
         public bool invisibleHead = false;
         public bool invisibleNeck = true;
         public bool invisibleSkin = false;
+
         public BodyTypeDef bodyTypeDef;
+        public List<GenderBodyTypeSet> genderBodyTypeSets = new List<GenderBodyTypeSet>();
+
         public HeadTypeDef headTypeDef;
+        public List<GenderHeadTypeSet> genderHeadTypeSets = new List<GenderHeadTypeSet>();
+
         public Vector2 drawSize = new Vector2(1f, 1f);
         public Vector2 headdrawSize = new Vector2(1f, 1f);
         

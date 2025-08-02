@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 using RimWorld;
 using Verse;
 using Verse.Noise;
-using static HarmonyLib.Code;
-using static MIM40kFactions.CompProperties_SporeHatcher;
 
-namespace MIM40kFactions
+namespace MIM40kFactions.Orks
 {
     public class CompSporeSpawner : ThingComp
     {
@@ -19,7 +17,8 @@ namespace MIM40kFactions
         private int maxOrkoidCount => LoadedModManager.GetMod<Mod_MIMWH40kFactions>().GetSettings<ModSettings_MIMWH40kFactions>().maxOrkoidCount;
         private bool countSpore => LoadedModManager.GetMod<Mod_MIMWH40kFactions>().GetSettings<ModSettings_MIMWH40kFactions>().countSpore;
         private int maxSporeCount => LoadedModManager.GetMod<Mod_MIMWH40kFactions>().GetSettings<ModSettings_MIMWH40kFactions>().maxSporeCount;
-        private FactionDef sporeFaction;
+
+        private FactionDef sporeFaction = null;
 
         private int MapTargetPawnKindCount
         {
@@ -40,7 +39,7 @@ namespace MIM40kFactions
             {
                 int sporeCount = 0;
 
-                if (!ModsConfig.IsActive("emitbreaker.MIM.WH40k.OK.Core"))
+                if (!Utility_DependencyManager.IsOKCoreActive())
                 {
                     return sporeCount;
                 }
@@ -67,7 +66,7 @@ namespace MIM40kFactions
         //{
         //    if (!IsValidSpawner()) return;
 
-        //    if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.OK.Core"))
+        //    if (Utility_DependencyManager.IsOKCoreActive())
         //    {
         //        if (maxOrkoidCount > 0)
         //        {
@@ -94,7 +93,7 @@ namespace MIM40kFactions
         {
             if (!IsValidSpawner()) return;
 
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.OK.Core"))
+            if (Utility_DependencyManager.IsOKCoreActive())
             {
                 if (maxOrkoidCount > 0)
                 {
@@ -119,7 +118,7 @@ namespace MIM40kFactions
         {
             if (!IsValidSpawner()) return;
 
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.OK.Core"))
+            if (Utility_DependencyManager.IsOKCoreActive())
             {
                 if (maxOrkoidCount > 0)
                 {
@@ -221,53 +220,18 @@ namespace MIM40kFactions
 
                     if (PropsSpawner.inheritFaction)
                     {
-                        if (!thing.def.CanHaveFaction)
-                        {
+                        sporeFaction = Utility_SporeManager.SporeFactionManager(thing, parent, PropsSpawner.defaultFactionDef, PropsSpawner.forceFactionDef, PropsSpawner.targetRaceDefstoCount, PropsSpawner.targetNPCFactions);
 
+                        var compSporeHatcher = thing.TryGetComp<CompSporeHatcher>();
+
+                        if (compSporeHatcher != null)
+                        {
+                            compSporeHatcher.hatcheeFaction = Find.FactionManager.FirstFactionOfDef(sporeFaction);
                         }
-                        else
+
+                        if (PropsSpawner.enableDebug)
                         {
-                            if (PropsSpawner.forceFactionDef != null)
-                            {
-                                thing.SetFactionDirect(Find.FactionManager.FirstFactionOfDef(PropsSpawner.forceFactionDef));
-                            }
-
-                            if (parent.Faction == null)
-                            {
-                                if (PropsSpawner.defaultFactionDef != null && Find.FactionManager.FirstFactionOfDef(PropsSpawner.defaultFactionDef) != null)
-                                {
-                                    sporeFaction = PropsSpawner.defaultFactionDef;
-                                }                                
-                                else if (Find.FactionManager.FirstFactionOfDef(FactionDef.Named("EMOK_PlayerColony")) != null && parent.Map.IsPlayerHome)
-                                {
-                                    sporeFaction = FactionDef.Named("EMOK_PlayerColony");
-                                }
-                                else if (Find.FactionManager.FirstFactionOfDef(FactionDef.Named("EMOK_PlayerColony")) == null)
-                                {
-                                    foreach (Pawn pawn in parent.Map.mapPawns.FreeColonists)
-                                    {
-                                        if (PropsSpawner.targetRaceDefstoCount.Contains(pawn.kindDef.race))
-                                        {
-                                            sporeFaction = Faction.OfPlayer.def;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    sporeFaction = Faction.OfInsects.def;
-                                }
-                            }
-
-                            if (parent.Faction != null && thing.Faction != parent.Faction)
-                            {
-                                sporeFaction = parent.Faction.def;
-                            }
-
-                            Faction targetFaction = Find.FactionManager.FirstFactionOfDef(sporeFaction);
-                            if (thing.Faction == null || thing.Faction != targetFaction)
-                            {
-                                thing.SetFactionDirect(targetFaction);
-                            }
+                            Log.Message("Spawning " + thing.def.label + " at " + result + " for " + parent + " has " + sporeFaction);
                         }
                     }
 
@@ -277,7 +241,7 @@ namespace MIM40kFactions
                         lastResultingThing.SetForbidden(value: true);
                     }
 
-                    if (PropsSpawner.showMessageIfOwned && parent.Faction == Faction.OfPlayer)
+                    if (PropsSpawner.showMessageIfOwned && parent.Faction == Faction.OfPlayer && PropsSpawner.enableDebug)
                     {
                         Messages.Message("MessageCompSpawnerSpawnedItem".Translate(thingToSapwn.LabelCap), thing, MessageTypeDefOf.PositiveEvent);
                     }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using RimWorld;
 using Verse;
 
-namespace MIM40kFactions
+namespace MIM40kFactions.Orks
 {
     public class CompSpawnThingsOnDamaged : ThingComp
     {
@@ -54,7 +54,7 @@ namespace MIM40kFactions
             }
 
             // Prevent spawning too many orkoids (if the mod is active)
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.OK.Core"))
+            if (Utility_DependencyManager.IsOKCoreActive())
             {
                 if (maxOrkoidCount > 0 && MapTargetPawnKindCount >= maxOrkoidCount)
                 {
@@ -86,7 +86,22 @@ namespace MIM40kFactions
                         continue;
                     }
 
-                    HandleItemFaction(thing);
+                    if (Props.inheritFaction)
+                    {
+                        sporeFaction = Utility_SporeManager.SporeFactionManager(thing, parent, Props.defaultFactionDef, Props.forceFactionDef, Props.targetRaceDefstoCount, Props.targetNPCFactions);
+
+                        var compSporeHatcher = thing.TryGetComp<CompSporeHatcher>();
+
+                        if (compSporeHatcher != null)
+                        {
+                            compSporeHatcher.hatcheeFaction = Find.FactionManager.FirstFactionOfDef(sporeFaction);
+                        }
+
+                        if (Props.enableDebug)
+                        {
+                            Log.Message("Spawning " + thing.def.label + " at " + result + " for " + parent + " has " + sporeFaction);
+                        }
+                    }
                     GenPlace.TryPlaceThing(thing, result, parent.Map, ThingPlaceMode.Direct, out var lastResultingThing);
 
                     // Mark as forbidden if specified
@@ -152,6 +167,7 @@ namespace MIM40kFactions
                 if (Props.forceFactionDef != null)
                 {
                     thing.SetFaction(Find.FactionManager.FirstFactionOfDef(Props.forceFactionDef));
+                    return;
                 }
 
                 // Assign default faction based on parent faction or specific conditions

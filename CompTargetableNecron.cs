@@ -3,10 +3,10 @@ using System;
 using System.Collections.Generic;
 using Verse;
 
-namespace MIM40kFactions
+namespace MIM40kFactions.Necron
 {
 
-    public class Comp_TargetableEMNC_Necron : CompTargetable
+    public class CompTargetableNecron : CompTargetable
     {
         protected override bool PlayerChoosesTarget => true;
 
@@ -27,7 +27,7 @@ namespace MIM40kFactions
         private bool TargetValidator(Corpse t)
         {           
             Pawn pawn = t?.InnerPawn ?? null;
-            return pawn != null && pawn.def.HasModExtension<EMNC_Necron_ValidatiorExtension>();
+            return pawn != null && pawn.def.HasModExtension<NecronalidatiorExtension>();
         }
     }
 

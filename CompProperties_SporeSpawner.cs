@@ -5,13 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using RimWorld;
 using Verse;
-using static MIM40kFactions.CompProperties_SporeHatcher;
 
-namespace MIM40kFactions
+namespace MIM40kFactions.Orks
 {
     public class CompProperties_SporeSpawner : CompProperties
     {
-        public List<ThingDef> thingDefsToSpawn;
+        public List<ThingDef> thingDefsToSpawn = new List<ThingDef>();
 
         public IntRange spawnCount = new IntRange(1, 1);
 
@@ -23,7 +22,7 @@ namespace MIM40kFactions
 
         //public int targetPawnKindOnMap = -1;
 
-        public bool spawnForbidden;
+        public bool spawnForbidden = false;
 
         public bool requiresPower = false;
 
@@ -33,13 +32,17 @@ namespace MIM40kFactions
 
         public string saveKeysPrefix;
 
-        public bool inheritFaction;
+        public bool inheritFaction = true;
 
         public FactionDef defaultFactionDef = null;
 
         public FactionDef forceFactionDef = null;
 
-        public List<ThingDef> targetRaceDefstoCount;
+        public List<ThingDef> targetRaceDefstoCount = new List<ThingDef>();
+
+        public List<FactionDef> targetNPCFactions = new List<FactionDef>();
+
+        public bool enableDebug = false;
 
         public CompProperties_SporeSpawner()
         {

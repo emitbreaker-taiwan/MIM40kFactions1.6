@@ -9,7 +9,7 @@ using Verse;
 using Verse.Sound;
 using static HarmonyLib.Code;
 
-namespace MIM40kFactions
+namespace MIM40kFactions.Orks
 {
     public class CompSporeLayer : ThingComp
     {
@@ -50,7 +50,7 @@ namespace MIM40kFactions
                 }
 
                 // Use the utility method for pawn count with cached results
-                if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.OK.Core") && maxOrkoidCount > 0 && parent.Map != null)
+                if (Utility_DependencyManager.IsOKCoreActive() && maxOrkoidCount > 0 && parent.Map != null)
                 {
                     int orkCount = Utility_MapPawnCount.GetThingCountByDefs(Props.targetRaceDefstoCount, parent.Map);
                     if (orkCount >= maxOrkoidCount)

@@ -14,9 +14,6 @@ namespace MIM40kFactions
     {
         ModSettings_MIMWH40kFactions settings;
 
-        private bool cachedEnableThoughtBlocking;
-        private bool cachedEnableThoughtFilter;
-
         public Mod_MIMWH40kFactions(ModContentPack content) : base(content)
         {
             settings = GetSettings<ModSettings_MIMWH40kFactions>();
@@ -38,20 +35,15 @@ namespace MIM40kFactions
             listingStandard.Gap(10f); // Optional spacing
             listingStandard.CheckboxLabeled("ModSetting_EnableDebug".Translate(), ref GetSettings<ModSettings_MIMWH40kFactions>().debugMode);
             listingStandard.Gap(10f); // Optional spacing
-            listingStandard.CheckboxLabeled("ModSetting_TurnOnWipeMemory".Translate(), ref GetSettings<ModSettings_MIMWH40kFactions>().enableHarmonyThoughtBlocking);
-            if (GetSettings<ModSettings_MIMWH40kFactions>().enableHarmonyThoughtBlocking != cachedEnableThoughtBlocking)
+            if (Utility_DependencyManager.IsRimDarkActive())
             {
-                listingStandard.Label("ModSetting_TurnOnWipeMemoryRestartWarning".Translate());
-            }
-            listingStandard.Gap(10f); // Optional spacing
-            listingStandard.CheckboxLabeled("ModSetting_ThoughtFilter".Translate(), ref GetSettings<ModSettings_MIMWH40kFactions>().enableHarmonyThoughtFiltering);
-            if (GetSettings<ModSettings_MIMWH40kFactions>().enableHarmonyThoughtFiltering != cachedEnableThoughtFilter)
-            {
-                listingStandard.Label("ModSetting_TurnOnWipeMemoryRestartWarning".Translate());
+                listingStandard.Gap(20f);
+                listingStandard.CheckboxLabeled("EMWH_UseRimDarkBodySize".Translate() + ": ", ref settings.useRimDarkSize);
+                listingStandard.SubLabel("EMWH_UseRimDarkBodySizeExplanation".Translate(), innerRect.width);
             }
             listingStandard.Gap(10f); // Optional spacing
             settings.accuracyModifier = listingStandard.SliderLabeled("ModSetting_RangedAccuracyModifier".Translate() + ": " + (settings.accuracyModifier / 100f).ToStringPercent(), settings.accuracyModifier, 0f, 100f, 0.5f, "ModSetting_RangedAccuracyModifierExplanation".Translate());
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.OK.Core"))
+            if (Utility_DependencyManager.IsOKCoreActive())
             {
                 listingStandard.Gap(20f);
                 listingStandard.Label("ModSetting_OrkMaxCount".Translate() + ": " + (settings.maxOrkCount).ToString());

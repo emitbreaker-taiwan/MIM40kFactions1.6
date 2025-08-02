@@ -177,7 +177,7 @@ namespace MIM40kFactions
             {
                 return false;
             }
-            if (isWalker && ModsConfig.IsActive("OskarPotocki.VFE.Pirates"))
+            if (isWalker && Utility_DependencyManager.IsVFEPiratesActive())
             {
                 if (target.apparel.WornApparel != null)
                 {
@@ -197,7 +197,7 @@ namespace MIM40kFactions
             }
             if (isVehicle)
             {
-                if (ModsConfig.IsActive("OskarPotocki.VFE.Pirates") && target.apparel.WornApparel != null)
+                if (Utility_DependencyManager.IsVFEPiratesActive() && target.apparel.WornApparel != null)
                 {
                     foreach (Thing apparel in target.apparel.WornApparel)
                     {
@@ -211,11 +211,12 @@ namespace MIM40kFactions
                         }
                     }
                 }
-                //if (ModsConfig.IsActive("SmashPhil.VehicleFramework") && target.def.thingClass.ToString() == "Vehicles.VehiclePawn")
+
+                //if (Utility_DependencyManager.IsVehicleFrameworkActive() && target.def.thingClass.ToString() == "Vehicles.VehiclePawn")
                 //{
                 //    return true;
                 //}
-                if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.NC.Core"))
+                if (Utility_DependencyManager.IsNCCoreActive())
                 {
                     if (target.kindDef.race == ThingDef.Named("EMNC_NecronCanoptekSpyderVanillaRace"))
                     {
@@ -368,7 +369,7 @@ namespace MIM40kFactions
                     return true;
                 }
             }
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.AA.SW"))
+            if (Utility_DependencyManager.IsSpaceWolvesActive())
             {
                 if (target.health.hediffSet.HasHediff(HediffDef.Named("EMSM_SWGeneSeed")) || target.health.hediffSet.HasHediff(HediffDef.Named("EMSM_SWGeneSeedNPC")))
                 {
@@ -382,7 +383,7 @@ namespace MIM40kFactions
                     return true;
                 }
             }
-            if (ModsConfig.BiotechActive && ModsConfig.IsActive("Phonicmas.40kGenes"))
+            if (ModsConfig.BiotechActive && Utility_DependencyManager.IsRimDarkActive())
             {
                 if (target.genes.HasXenogene(Utility_GeneManager.GeneDefNamed("BEWH_BlackCarapace")))
                 {
@@ -394,7 +395,7 @@ namespace MIM40kFactions
 
         private static bool HereticAstartesValidator(Pawn target)
         {
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.DG"))
+            if (Utility_DependencyManager.IsDeathGuardActive())
             {
                 if (target.health.hediffSet.HasHediff(HediffDef.Named("EMDG_GeneSeed")) || target.health.hediffSet.HasHediff(HediffDef.Named("EMDG_GeneSeedNPC")))
                 {
@@ -415,7 +416,7 @@ namespace MIM40kFactions
                     return true;
                 }
             }
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.TS"))
+            if (Utility_DependencyManager.IsThousandSonsActive())
             {
                 if (target.health.hediffSet.HasHediff(HediffDef.Named("EMCM_TSGeneSeed")) || target.health.hediffSet.HasHediff(HediffDef.Named("EMCM_TSGeneSeedNPC")))
                 {
@@ -429,7 +430,14 @@ namespace MIM40kFactions
                     return true;
                 }
             }
-            if (ModsConfig.BiotechActive && ModsConfig.IsActive("Phonicmas.40kGenes") && target.genes.HasXenogene(Utility_GeneManager.GeneDefNamed("BEWH_BlackCarapace")))
+            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.NL"))
+            {
+                if (target.health.hediffSet.HasHediff(HediffDef.Named("EMCM_NLGeneSeed")) || target.health.hediffSet.HasHediff(HediffDef.Named("EMCM_NLGeneSeedNPC")))
+                {
+                    return true;
+                }
+            }
+            if (ModsConfig.BiotechActive && Utility_DependencyManager.IsRimDarkActive() && target.genes.HasXenogene(Utility_GeneManager.GeneDefNamed("BEWH_BlackCarapace")))
             {
                 if (target.genes.HasXenogene(Utility_GeneManager.GeneDefNamed("BEWH_KhorneMark")))
                 {

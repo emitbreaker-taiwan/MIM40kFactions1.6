@@ -7,7 +7,7 @@ using RimWorld;
 using Verse;
 using Verse.AI;
 
-namespace MIM40kFactions
+namespace MIM40kFactions.Orks
 {
     public class JobDriver_LaySpore : JobDriver
     {

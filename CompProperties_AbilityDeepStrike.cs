@@ -32,5 +32,7 @@ namespace MIM40kFactions
         public bool isDaemon = false;
         public bool isDestroyerCult = false;
         public List<string> keywords = new List<string>();
+
+        public bool targetFarFromSelf = true;
     }
 }

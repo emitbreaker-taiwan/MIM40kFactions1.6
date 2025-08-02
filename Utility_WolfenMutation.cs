@@ -67,12 +67,12 @@ namespace MIM40kFactions
         }
         private static void DoMakeWulfen(Pawn EMSM_SWvictim, Faction homeFaction, BackstoryDef childhood, BackstoryDef adulthood)
         {
-            if (ModsConfig.BiotechActive == true)
+            if (ModsConfig.BiotechActive)
             {
                 EMSM_SWvictim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMSM_Astartes_Wulfen"));
             }
 
-            if (!ModsConfig.IsActive("emitbreaker.MIM.WH40k.AA.SW") || homeFaction == Faction.OfPlayer)
+            if (!Utility_DependencyManager.IsSpaceWolvesActive() || homeFaction == Faction.OfPlayer)
                 EMSM_SWvictim.kindDef = PawnKindDef.Named("EMSM_Mutation_Wulfen");
             else
                 EMSM_SWvictim.kindDef = PawnKindDef.Named("EMSM_Mutation_Wulfen");

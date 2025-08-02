@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Verse;
 using Verse.AI;
 
-namespace MIM40kFactions
+namespace MIM40kFactions.Orks
 {
     public class WorkGiver_Teef : WorkGiver_GatherAnimalBodyResources
     {

@@ -19,9 +19,4 @@ namespace MIM40kFactions
             compClass = typeof(CompChangeBodyType_Apparel);
         }
     }
-    public class GenderBodyTypeSet
-    {
-        public Gender gender;
-        public BodyTypeDef def;
-    }
 }

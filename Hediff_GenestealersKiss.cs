@@ -1,17 +1,13 @@
 ﻿using RimWorld;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Verse;
-using static System.Collections.Specialized.BitVector32;
 
-namespace MIM40kFactions
+namespace MIM40kFactions.GenestealerCult
 {
     public class Hediff_GenestealersKiss : HediffWithComps
     {
         public override void Tick()
         {
-            if (!ModsConfig.IsActive("emitbreaker.MIM.WH40k.GC.Core"))
+            if (!Utility_DependencyManager.IsGCCoreActive())
             {
                 return;
             }

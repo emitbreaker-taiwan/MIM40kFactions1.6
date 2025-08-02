@@ -8,7 +8,7 @@ using RimWorld;
 using Verse;
 using RimWorld.Planet;
 
-namespace MIM40kFactions
+namespace MIM40kFactions.Orks
 {
     
     public class CompSporeHatcher : ThingComp
@@ -119,14 +119,14 @@ namespace MIM40kFactions
         private void SelectPawnToSpawn()
         {
             // Optimize by caching or limiting the selection logic
-            if (!ModsConfig.IsActive("emitbreaker.MIM.WH40k.OK.Core"))
+            if (!Utility_DependencyManager.IsOKCoreActive())
             {
                 hatcherPawn = Props.hatcherPawnDef ?? PawnKindDef.Named("Chicken");
             }
             else
             {
-                float rand = Rand.Range(1f, 100f);
-                hatcherPawn = GetHatcherPawnBasedOnConditions(rand);
+                float rand2 = Rand.Range(1f, 100f);
+                hatcherPawn = GetHatcherPawnBasedOnConditions(rand2);
             }
 
             if (Props.enableDebug)
@@ -137,18 +137,42 @@ namespace MIM40kFactions
 
         private PawnKindDef GetHatcherPawnBasedOnConditions(float rand)
         {
-            if (GetMapGrotCount() <= 10)
+            int grotCount = GetMapGrotCount();
+            int squigCount = GetMapSquigCount();
+            int smallCount = grotCount + squigCount;
+            int orkCount = GetMapOrkCount();
+
+            // ① Too small # of Grots
+            if (grotCount <= 10)
             {
-                return rand <= 60f ? Props.squigPawnKindDefs.RandomElement() : Props.grotPawnKindDefs.RandomElement();
+                return GetRandomSquigOrGrotPawn(rand);
             }
-            else if (GetMapGrotCount() > 10 && GetMapOrkCount() <= 10)
+
+            // ② Too small # of Orks
+            if (orkCount <= 10 || smallCount == orkCount)
             {
-                return rand <= 60f ? Props.orkPawnKindDefs.RandomElement() : GetRandomSquigOrGrotPawn(rand);
+                return rand <= 60f
+                    ? Props.orkPawnKindDefs.RandomElement()
+                    : GetRandomSquigOrGrotPawn(rand);
             }
-            else
+
+            // ③ Too many orks compared to Grots/Squigs
+            if (smallCount < orkCount * 1.5)
             {
-                return rand > 60f ? Props.orkPawnKindDefs.RandomElement() : GetRandomSquigOrGrotPawn(rand);
+                return GetRandomSquigOrGrotPawn(rand);
             }
+
+            // ④ Too samll # of Orks compared to Grots/Squigs
+            float orkRatio = orkCount / (float)(orkCount + smallCount);
+            if (orkRatio < 0.2f)
+            {
+                return Props.orkPawnKindDefs.RandomElement();
+            }
+
+            // Fallback to random selection
+            return rand > 60f
+                ? Props.orkPawnKindDefs.RandomElement()
+                : GetRandomSquigOrGrotPawn(rand);        
         }
 
         private PawnKindDef GetRandomSquigOrGrotPawn(float rand)
@@ -212,7 +236,7 @@ namespace MIM40kFactions
 
         private int GetMapGrotCount()
         {
-            if (!ModsConfig.IsActive("emitbreaker.MIM.WH40k.OK.Core"))
+            if (!Utility_DependencyManager.IsOKCoreActive())
             {
                 return 0;
             }
@@ -220,9 +244,19 @@ namespace MIM40kFactions
             return Utility_MapPawnCount.GetThingCountByDefs(Props.grotRaceThingDefs, parent.Map);
         }
 
+        private int GetMapSquigCount()
+        {
+            if (!Utility_DependencyManager.IsOKCoreActive())
+            {
+                return 0;
+            }
+
+            return Utility_MapPawnCount.GetThingCountByDefs(Props.squigRaceThingDefs, parent.Map);
+        }
+
         private int GetMapOrkCount()
         {
-            if (!ModsConfig.IsActive("emitbreaker.MIM.WH40k.OK.Core"))
+            if (!Utility_DependencyManager.IsOKCoreActive())
             {
                 return 0;
             }

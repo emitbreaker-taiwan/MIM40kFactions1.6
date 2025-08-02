@@ -17,7 +17,7 @@ namespace MIM40kFactions
                 return;
             }
 
-            if (ModsConfig.IsActive("VanillaExpanded.VPsycastsE"))
+            if (Utility_DependencyManager.IsVPEActive())
             {
                 return;
             }

@@ -79,7 +79,7 @@ namespace MIM40kFactions
             LocalTargetInfo destinationDeepstrike = dest.IsValid ? dest : FindDeepStrikeDestinationFor(parent.pawn, target.Cell);
             if (!dest.IsValid)
             {
-                dest = GetAutoDestinationForAI();
+                dest = GetSmartDestinationForAI();
             }
             if (!destinationDeepstrike.IsValid)
             {
@@ -284,6 +284,79 @@ namespace MIM40kFactions
             }
 
             return base.CanApplyOn(target, dest);
+        }
+
+        private Pawn FindFurthestEnemyPawn()
+        {
+            Pawn caster = parent.pawn;
+            Map map = caster.Map;
+            List<Pawn> enemies = map.mapPawns.AllPawnsSpawned
+                .Where(p => p.HostileTo(caster.Faction) && p.Spawned && !p.Downed && !p.Dead)
+                .ToList();
+
+            if (enemies.Count == 0)
+                return null;
+
+            return enemies.OrderByDescending(p => p.Position.DistanceToSquared(caster.Position)).FirstOrDefault();
+        }
+
+        private LocalTargetInfo GetEnemyCenterDestination()
+        {
+            Pawn caster = parent.pawn;
+            Map map = caster.Map;
+            var enemies = map.mapPawns.AllPawnsSpawned
+                .Where(p => p.HostileTo(caster.Faction) && p.Spawned && !p.Downed && !p.Dead)
+                .ToList();
+
+            if (enemies.Count == 0)
+                return LocalTargetInfo.Invalid;
+
+            int avgX = Mathf.RoundToInt((float)enemies.Average(p => p.Position.x));
+            int avgZ = Mathf.RoundToInt((float)enemies.Average(p => p.Position.z));
+            IntVec3 center = new IntVec3(avgX, 0, avgZ);
+
+            for (int i = 0; i < 20; i++)
+            {
+                IntVec3 tryCell = CellFinder.RandomClosewalkCellNear(center, map, 3);
+                if (tryCell.Standable(map))
+                    return tryCell;
+            }
+
+            return LocalTargetInfo.Invalid;
+        }
+
+        private LocalTargetInfo GetSmartDestinationForAI()
+        {
+            Pawn caster = parent.pawn;
+
+            if (Props.targetFarFromSelf)
+            {
+                Pawn target = FindFurthestEnemyPawn();
+                if (target != null)
+                {
+                    for (int i = 0; i < 30; i++)
+                    {
+                        IntVec3 candidate = CellFinder.RandomClosewalkCellNear(target.Position, caster.Map, 4);
+                        if (candidate.Standable(caster.Map))
+                            return candidate;
+                    }
+                }
+            }
+            else
+            {
+                LocalTargetInfo center = GetEnemyCenterDestination();
+                if (center.IsValid)
+                {
+                    for (int i = 0; i < 30; i++)
+                    {
+                        IntVec3 candidate = CellFinder.RandomClosewalkCellNear(center.Cell, caster.Map, 4);
+                        if (candidate.Standable(caster.Map))
+                            return candidate;
+                    }
+                }
+            }
+
+            return GetAutoDestinationForAI(); // fallback
         }
     }
 }

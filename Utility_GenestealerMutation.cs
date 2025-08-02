@@ -1,22 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RimWorld;
+﻿using RimWorld;
 using Verse;
-using static System.Collections.Specialized.BitVector32;
 
-namespace MIM40kFactions
+namespace MIM40kFactions.GenestealerCult
 {
     public class Utility_GenestealerMutation
     {
         private static float mutationSeed;
         public static void DoMutationConsideration(Pawn EMGC_victim, Faction faction = null)
         {
-            if (ModsConfig.BiotechActive == true && ModsConfig.IsActive("emitbreaker.MIM.WH40k.GC.Core"))
+            if (ModsConfig.BiotechActive && Utility_DependencyManager.IsGCCoreActive())
             {
-                if (EMGC_victim.HasPsylink == true)
+                if (EMGC_victim.HasPsylink)
                 {
                     EMGC_victim.kindDef = PawnKindDef.Named("EMGC_Mutation_Magus");
                     EMGC_victim.genes.SetXenotype(Utility_XenotypeManager.XenotypeDefNamed("EMGC_Magus"));
@@ -136,7 +130,7 @@ namespace MIM40kFactions
 
         public static void RemoveTrigger(Pawn EMGC_victim)
         {
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.GC.Core"))
+            if (Utility_DependencyManager.IsGCCoreActive())
             {
                 Hediff firstGen = EMGC_victim.health.hediffSet.GetFirstHediffOfDef(HediffDef.Named("EMGC_GSKiss_FirstGen"));
                 Hediff secondGen = EMGC_victim.health.hediffSet.GetFirstHediffOfDef(HediffDef.Named("EMGC_GSKiss_SecondGen"));

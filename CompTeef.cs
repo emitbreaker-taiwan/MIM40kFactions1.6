@@ -7,7 +7,7 @@ using RimWorld;
 using Verse;
 using static HarmonyLib.Code;
 
-namespace MIM40kFactions
+namespace MIM40kFactions.Orks
 {
     public class CompTeef : CompHasGatherableBodyResource
     {

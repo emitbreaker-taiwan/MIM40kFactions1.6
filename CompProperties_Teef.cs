@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Verse;
 using RimWorld;
 
-namespace MIM40kFactions
+namespace MIM40kFactions.Orks
 {
     public class CompProperties_Teef : CompProperties
     {

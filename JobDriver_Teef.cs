@@ -1,7 +1,7 @@
 ﻿using RimWorld;
 using Verse;
 
-namespace MIM40kFactions
+namespace MIM40kFactions.Orks
 {
     public class JobDriver_Teef : JobDriver_GatherAnimalBodyResources
     {

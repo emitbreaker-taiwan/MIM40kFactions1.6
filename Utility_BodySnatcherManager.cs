@@ -95,9 +95,21 @@ namespace MIM40kFactions
                 ? (modExtension.headdrawSize.x > 0f ? modExtension.headdrawSize.x : 1f)
                 : (modExtension.drawSize.x > 0f ? modExtension.drawSize.x : 1f);
 
-            if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core"))
+            if (!Utility_DependencyManager.IsVFEActive())
             {
                 scaling = Mathf.Min(scaling, 1.3f);
+            }
+
+            if (Utility_DependencyManager.IsRimDarkActive())
+            {
+                if (pawn.genes.HasActiveGene(Utility_GeneManager.GeneDefNamed("EMSM_AdeptusAstartes_BodySize")) || pawn.genes.HasActiveGene(Utility_GeneManager.GeneDefNamed("EMCM_CSM_BodySize")) || pawn.genes.HasActiveGene(Utility_GeneManager.GeneDefNamed("EMSM_AdeptusAstartes_BodySize_Primaris")))
+                {
+                    scaling = Mathf.Min(scaling, 1f);
+                }
+                if (pawn.apparel.WornApparel != null && pawn.apparel.WornApparel.Any(apparel => apparel.def.GetModExtension<BodySnatcherExtension>()?.drawSize.x > 0f))
+                {
+                    scaling = Mathf.Min(scaling, 1f);
+                }
             }
 
             return scaling;

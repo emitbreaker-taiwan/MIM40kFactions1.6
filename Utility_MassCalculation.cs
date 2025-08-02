@@ -1,9 +1,10 @@
-﻿using System;
+﻿using MIM40kFactions.Necron;
+using RimWorld;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using RimWorld;
 using Verse;
 
 namespace MIM40kFactions
@@ -35,7 +36,7 @@ namespace MIM40kFactions
                 multiplier += (pawn.RaceProps.baseBodySize - 1f) * massModifier;
             }
 
-            EMNC_Necron_ValidatiorExtension NecronmodExtension = pawn.def.GetModExtension<EMNC_Necron_ValidatiorExtension>();
+            NecronalidatiorExtension NecronmodExtension = pawn.def.GetModExtension<NecronalidatiorExtension>();
 
             if (NecronmodExtension != null)
             {
@@ -100,7 +101,7 @@ namespace MIM40kFactions
                     multiplier += (p.RaceProps.baseBodySize - 1f) * (massModifier / 100f);
                 }
 
-                if (p.def.GetModExtension<EMNC_Necron_ValidatiorExtension>() != null)
+                if (p.def.GetModExtension<NecronalidatiorExtension>() != null)
                 {
                     addedMass += multiplier * (massModifier * 5f);
                     multiplier = 1f;

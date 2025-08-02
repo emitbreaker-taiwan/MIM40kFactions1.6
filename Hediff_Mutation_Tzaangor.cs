@@ -10,7 +10,7 @@ namespace MIM40kFactions
     {
         public override void Tick()
         {
-            if (!ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.TS"))
+            if (!Utility_DependencyManager.IsThousandSonsActive())
                 return;
             ++ageTicks;
             if ((double)Severity < 0.99)
@@ -36,7 +36,7 @@ namespace MIM40kFactions
         {
             if (EMTS_victim == null)
                 return;
-            if(ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.TS"))
+            if(Utility_DependencyManager.IsThousandSonsActive())
             {
                 EMTS_victim.kindDef = DoPawnKindConsideration(EMTS_victim);
 
@@ -64,12 +64,12 @@ namespace MIM40kFactions
                 ideo = EMTS_victim.Faction.ideos.PrimaryIdeo;
             }
 
-            if (ModsConfig.IdeologyActive && ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.TS"))
+            if (ModsConfig.IdeologyActive && Utility_DependencyManager.IsThousandSonsActive())
             {
                 Utility_NonHumanlikeMutation.RespawnHumanlike(EMTS_victim, DoPawnKindConsideration(EMTS_victim), faction, DoXenotypeConsideration(EMTS_victim), HediffDef.Named("EMTS_Mutation_Tzaangor"), ideo);
                 return;
             }
-            if (!ModsConfig.IdeologyActive && ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.TS"))
+            if (!ModsConfig.IdeologyActive && Utility_DependencyManager.IsThousandSonsActive())
             {
                 Utility_NonHumanlikeMutation.RespawnHumanlike(EMTS_victim, DoPawnKindConsideration(EMTS_victim), faction, DoXenotypeConsideration(EMTS_victim), HediffDef.Named("EMTS_Mutation_Tzaangor"));
                 return;
@@ -78,7 +78,7 @@ namespace MIM40kFactions
 
         private static PawnKindDef DoPawnKindConsideration(Pawn EMTS_victim, PawnKindDef mutationkindDef = null)
         {
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.TS"))
+            if (Utility_DependencyManager.IsThousandSonsActive())
             {
                 if (ModsConfig.RoyaltyActive == true)
                 {
@@ -105,7 +105,7 @@ namespace MIM40kFactions
 
         private static XenotypeDef DoXenotypeConsideration(Pawn EMTS_victim, XenotypeDef mutationXenotype = null)
         {
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.TS"))
+            if (Utility_DependencyManager.IsThousandSonsActive())
             {
                 if (ModsConfig.RoyaltyActive == true)
                 {

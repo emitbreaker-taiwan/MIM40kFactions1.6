@@ -14,7 +14,7 @@ namespace MIM40kFactions
     {
         public override void Tick()
         {
-            if (!ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.DG"))
+            if (!Utility_DependencyManager.IsDeathGuardActive())
                 return;
             ++ageTicks;
             if ((double)Severity < 0.77)
@@ -39,7 +39,7 @@ namespace MIM40kFactions
 
         private static void DoMutation(Pawn EMDG_victim)
         {
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.DG"))
+            if (Utility_DependencyManager.IsDeathGuardActive())
             {
                 if (EMDG_victim == null)
                     return;
@@ -54,7 +54,7 @@ namespace MIM40kFactions
         }
         private static void DoRespawn(Pawn EMDG_victim)
         {
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.DG"))
+            if (Utility_DependencyManager.IsDeathGuardActive())
             {
                 Faction faction = SelectFaction();
                 Ideo ideo = faction.ideos.PrimaryIdeo;
@@ -73,7 +73,7 @@ namespace MIM40kFactions
         }
         private static void DoPostAction(Pawn EMDG_victim)
         {
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.DG"))
+            if (Utility_DependencyManager.IsDeathGuardActive())
             {
                 if (HediffDef.Named("EMCH_Poxwalker") != null)
                 {
@@ -84,7 +84,7 @@ namespace MIM40kFactions
         private static Faction SelectFaction()
         {
             Faction faction = new Faction();
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.DG"))
+            if (Utility_DependencyManager.IsDeathGuardActive())
             {                
                 if (Utility_FactionManagement.Named("EMCM_DG_PlayerColony") != null)
                     faction = Faction.OfPlayer;

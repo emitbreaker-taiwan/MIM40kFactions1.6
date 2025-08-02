@@ -1,22 +1,13 @@
-﻿using AlienRace;
-using HarmonyLib;
+﻿using HarmonyLib;
+using MIM40kFactions.Necron;
 using RimWorld;
-using RimWorld.Planet;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime;
 using System.Text;
 using UnityEngine;
 using Verse;
-using Verse.AI;
-using Verse.Noise;
-using static HarmonyLib.Code;
-using static System.Collections.Specialized.BitVector32;
-using static UnityEngine.GraphicsBuffer;
 
-namespace MIM40kFactions
+namespace MIM40kFactions.HarmonyPatches
 {
     [StaticConstructorOnStartup]
     public static class HarmonyPatches
@@ -179,6 +170,9 @@ namespace MIM40kFactions
 
             //RemoveCustomMechs
             harmony.Patch(AccessTools.Method(typeof(GenStep_SleepingMechanoids), "SendMechanoidsToSleepImmediately", new System.Type[1] { typeof(List<Pawn>) }), prefix: new HarmonyMethod(typeof(EMWH_RemoveCustomMechs).GetMethod("SendMechanoidsToSleepImmediatelyPrefix")));
+
+            //EMWH_ServitorChipPatch
+            harmony.Patch(AccessTools.Method(typeof(TerrorUtility), "GetTerrorThoughts", new System.Type[1] { typeof(Pawn) }), prefix: new HarmonyMethod(typeof(EMWH_ServitorChipPatch).GetMethod("Prefix_GetTerrorThoughts")));
         }
     }
 
@@ -187,7 +181,7 @@ namespace MIM40kFactions
         [HarmonyPrefix]
         public static bool GenerateRandomOldAgeInjuriesPrefix(Pawn pawn)
         {
-            EMNC_Necron_ValidatiorExtension modExtension = pawn.def.GetModExtension<EMNC_Necron_ValidatiorExtension>();
+            NecronalidatiorExtension modExtension = pawn.def.GetModExtension<NecronalidatiorExtension>();
             bool immnueToage = false;
             if (modExtension != null)
             {
@@ -242,6 +236,11 @@ namespace MIM40kFactions
                 BodySnatcher(pawn, modExtension);
             }
 
+            if (modExtension.genderBodyTypeSets != null && Utility_GeneManager.GeneValidator(pawn, modExtension))
+            {
+                BodySnatcher(pawn, modExtension);
+            }
+
             // ✅ Remove - No more direct body graphic path changes here
             // Graphic override is now handled dynamically during rendering.
 
@@ -279,28 +278,34 @@ namespace MIM40kFactions
 
             BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(pawn);
             if (modExtension == null || modExtension.pathBody.NullOrEmpty())
+            {
                 return;
+            }
 
             Shader shader = ShaderUtility.GetSkinShader(pawn);
             Vector2 drawSize = Vector2.one;
-            if (!ModsConfig.IsActive("OskarPotocki.VanillaFactionsExpanded.Core"))
+            Color color = Color.white;
+
+            if (!Utility_DependencyManager.IsVFEActive())
             {
                 drawSize = modExtension.drawSize == default ? Vector2.one : modExtension.drawSize;
             }
-            Color color = Color.white;
 
             if (modExtension.useGeneSkinColor)
             {
                 color = pawn.story.SkinColor;
             }
 
-            if (pawn.Drawer.renderer.CurRotDrawMode == RotDrawMode.Dessicated)
+            if (modExtension.pathBody != null)
             {
-                __result = GraphicDatabase.Get<Graphic_Multi>(modExtension.pathBody, shader, drawSize, color);
-            }
-            else
-            {
-                __result = GraphicDatabase.Get<Graphic_Multi>(modExtension.pathBody, shader, drawSize, color);
+                if (pawn.Drawer.renderer.CurRotDrawMode == RotDrawMode.Dessicated)
+                {
+                    __result = GraphicDatabase.Get<Graphic_Multi>(modExtension.pathBody, shader, drawSize, color);
+                }
+                else
+                {
+                    __result = GraphicDatabase.Get<Graphic_Multi>(modExtension.pathBody, shader, drawSize, color);
+                }
             }
         }
 
@@ -326,10 +331,31 @@ namespace MIM40kFactions
                 }
             }
 
+            if (modExtension.genderBodyTypeSets != null)
+            {
+                foreach (var genderBodyTypeSet in modExtension.genderBodyTypeSets)
+                {
+                    if (pawn.gender == genderBodyTypeSet.gender)
+                    {
+                        if (pawn.story.bodyType != genderBodyTypeSet.def)
+                        {
+                            if (DefDatabase<BodyTypeDef>.AllDefsListForReading.Contains(genderBodyTypeSet.def))
+                            {
+                                pawn.story.bodyType = genderBodyTypeSet.def;
+                            }
+                            else
+                            {
+                                Log.Warning("Selected bodyType does not exist. Keeping original bodyType.");
+                            }
+                        }
+                    }
+                }
+            }
+
             // ❗ NO: Don't mutate bodyType.graphicPath anymore
             // Graphic override now handled dynamically.
 
-            if (modExtension.bodyTypeDef == null && modExtension.pathBody.NullOrEmpty())
+            if (modExtension.bodyTypeDef == null && modExtension.pathBody.NullOrEmpty() && modExtension.genderBodyTypeSets == null)
             {
                 Log.Error("Both bodyTypeDef and pathBody are null. Operation failed.");
             }
@@ -373,6 +399,24 @@ namespace MIM40kFactions
                     Log.Warning("Selected headType does not exist. Keeping original headType.");
                 }
             }
+
+            if (modExtension.genderHeadTypeSets != null && Utility_GeneManager.GeneValidator(pawn, modExtension))
+            {
+                foreach (var genderSet in modExtension.genderHeadTypeSets)
+                {
+                    if (pawn.gender == genderSet.gender)
+                    {
+                        if (DefDatabase<HeadTypeDef>.AllDefsListForReading.Contains(modExtension.headTypeDef))
+                        {
+                            pawn.story.headType = genderSet.def;
+                        }
+                        else
+                        {
+                            Log.Warning("Selected headType does not exist. Keeping original headType.");
+                        }
+                    }
+                }
+            }
         }
 
         [HarmonyPostfix]
@@ -405,7 +449,7 @@ namespace MIM40kFactions
                 return;
             }
 
-            if (ModsConfig.IsActive("Nals.FacialAnimation"))
+            if (Utility_DependencyManager.IsFacialAnimationActive())
                 return;
 
             var modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(parms.pawn);
@@ -570,7 +614,7 @@ namespace MIM40kFactions
 
             if (modExtension == null)
             {
-                if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CH.CD"))
+                if (Utility_DependencyManager.IsChaosDaemonsActive())
                 {
                     if (__result == (Utility_XenotypeManager.XenotypeDefNamed("EMCD_PinkHorror")))
                     {
@@ -609,7 +653,7 @@ namespace MIM40kFactions
                         __result = XenotypeDefOf.Baseliner;
                     }
                 }
-                if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.GC.Core"))
+                if (Utility_DependencyManager.IsGCCoreActive())
                 {
                     if (__result == (Utility_XenotypeManager.XenotypeDefNamed("EMGC_PurestrainGenestealer")))
                     {
@@ -620,7 +664,7 @@ namespace MIM40kFactions
                         __result = XenotypeDefOf.Baseliner;
                     }
                 }
-                if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.NC.Core"))
+                if (Utility_DependencyManager.IsNCCoreActive())
                 {
                     if (__result == (Utility_XenotypeManager.XenotypeDefNamed("EMNC_Necrons")))
                     {
@@ -633,76 +677,6 @@ namespace MIM40kFactions
 
     public static class EMWH_ApparelRestrictionPatch
     {
-        //    [HarmonyPostfix]
-        //    public static void PawnCanWearbyTraitPostfix(Apparel __instance, Pawn pawn, ref bool __result)
-        //    {
-        //        if (!__result || !__instance.def.IsApparel)
-        //        {
-        //            return;
-        //        }
-        //        __result = Utility_ApparelRestriction.PawnCanWearbyTrait(__instance, pawn, __result);
-        //    }
-
-        //    [HarmonyPostfix]
-        //    public static void PawnCanWearbyArmorPostfix(Apparel __instance, Pawn pawn, ref bool __result)
-        //    {
-        //        if (!__result || !__instance.def.IsApparel)
-        //        {
-        //            return;
-        //        }
-        //        __result = Utility_ApparelRestriction.PawnCanWearbyArmor(__instance, pawn, __result);
-        //    }
-
-
-
-        //[HarmonyPostfix]
-        //public static void PawnCanWearbyapparelTagsPostfix(Apparel __instance, Pawn pawn, ref bool __result)
-        //{
-        //    if (!__result || !__instance.def.IsApparel)
-        //    {
-        //        return;
-        //    }
-        //    __result = Utility_ApparelRestriction.PawnCanWearbyapparelTags(__instance, pawn, __result);
-        //}
-
-
-
-        //    [HarmonyPostfix]
-        //    public static void PawnCanWearbyHediffPostfix(Apparel __instance, Pawn pawn, ref bool __result)
-        //    {
-        //        if (!__result || !__instance.def.IsApparel)
-        //        {
-        //            return;
-        //        }
-        //        __result = Utility_ApparelRestriction.PawnCanWearbyHediff(__instance, pawn, __result);
-        //    }
-
-        //    [HarmonyPostfix]
-        //    public static void PawnCannotWearbyRacePostfix(Apparel __instance, Pawn pawn, ref bool __result)
-        //    {
-        //        EMWH_ApparelRestriction_ValidatiorExtension modExtension = pawn.def.GetModExtension<EMWH_ApparelRestriction_ValidatiorExtension>();
-
-        //        if (modExtension == null)
-        //        {
-        //            return;
-        //        }
-        //        if (!__result || !__instance.def.IsApparel)
-        //        {
-        //            return;
-        //        }
-        //        __result = Utility_ApparelRestriction.PawnCannotWearbyRace(__instance, pawn, __result);
-        //    }
-
-        //    [HarmonyPostfix]
-        //    public static void PawnCanWearbyRacePostfix(Apparel __instance, Pawn pawn, ref bool __result)
-        //    {
-        //        if (!__result || !__instance.def.IsApparel)
-        //        {
-        //            return;
-        //        }
-        //        __result = Utility_ApparelRestriction.PawnCanWearbyRace(__instance, pawn, __result);
-        //    }
-
         [HarmonyPrefix]
         public static bool PawnApparelTrackerWearPrefix(Pawn_ApparelTracker __instance, Apparel newApparel, bool dropReplacedApparel = true, bool locked = false)
         {
@@ -932,7 +906,7 @@ namespace MIM40kFactions
                 return true;
             }
 
-            if (!ModsConfig.IsActive("emitbreaker.MIM.WH40k.NC.Core"))
+            if (!Utility_DependencyManager.IsNCCoreActive())
             {
                 return true;
             }
@@ -1133,7 +1107,7 @@ namespace MIM40kFactions
                 return;
             }
 
-            EMNC_Necron_ValidatiorExtension modExtension = victim.def.GetModExtension<EMNC_Necron_ValidatiorExtension>();
+            NecronalidatiorExtension modExtension = victim.def.GetModExtension<NecronalidatiorExtension>();
             if (modExtension == null)
             {
                 return;
@@ -1180,7 +1154,7 @@ namespace MIM40kFactions
 
             if (modExtension != null && modExtension.isNeuralSupercharger)
             {
-                if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.NC.Core") && (pawn.health.hediffSet.GetFirstHediffOfDef(HediffDef.Named("EMNC_Biotransference_Lord")) != null || pawn.health.hediffSet.GetFirstHediffOfDef(HediffDef.Named("EMNC_Biotransference_Cryptek")) != null))
+                if (Utility_DependencyManager.IsNCCoreActive() && (pawn.health.hediffSet.GetFirstHediffOfDef(HediffDef.Named("EMNC_Biotransference_Lord")) != null || pawn.health.hediffSet.GetFirstHediffOfDef(HediffDef.Named("EMNC_Biotransference_Cryptek")) != null))
                 {
                     __result = true;
                 }
@@ -1472,7 +1446,7 @@ namespace MIM40kFactions
 
             BodySnatcherExtension modExtension = Utility_BodySnatcherManager.GetBodySnatcherExtension(pawn);
 
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.GC.Core"))
+            if (Utility_DependencyManager.IsGCCoreActive())
             {
                 if (modExtension == null && (pawn.story.headType == Utility_HeadTypeDefManagement.Named("Male_PurestrainGenestealer") || pawn.story.headType == Utility_HeadTypeDefManagement.Named("Female_PurestrainGenestealer")))
                 {
@@ -1491,7 +1465,7 @@ namespace MIM40kFactions
                 }
             }
 
-            if (ModsConfig.IsActive("emitbreaker.MIM.WH40k.CH.CD") && ModsConfig.BiotechActive)
+            if (Utility_DependencyManager.IsChaosDaemonsActive() && ModsConfig.BiotechActive)
             {
                 if (modExtension == null && (pawn.story.headType == Utility_HeadTypeDefManagement.Named("Male_PinkHorror") || pawn.story.headType == Utility_HeadTypeDefManagement.Named("Female_PinkHorror")))
                 {
@@ -1544,14 +1518,42 @@ namespace MIM40kFactions
         [HarmonyPrefix]
         public static bool KillHARTranspilerforNonHARPanwsPrefix(TattooDef __instance, ref Graphic __result, Pawn pawn, Color color)
         {
-            // 💡 Skip rendering tattoos entirely for non-HAR pawns
+            if (!Utility_DependencyManager.IsFuckingHARActive())
+                return true;
+
             if (pawn?.def?.GetType().Name != "ThingDef_AlienRace")
             {
-                __result = null;
-                return false; // Prevents HAR's transpiled logic from running
+                if (__instance.noGraphic)
+                {
+                    __result = null;
+                }
+                else
+                {
+                    string maskPath;
+                    if (__instance.tattooType == TattooType.Body)
+                    {
+                        maskPath = pawn.story.bodyType.bodyNakedGraphicPath;
+                    }
+                    else
+                    {
+                        maskPath = pawn.story.headType.graphicPath;
+                    }
+
+                    __result = GraphicDatabase.Get<Graphic_Multi>(
+                        __instance.texPath,
+                        __instance.overrideShaderTypeDef?.Shader ?? ShaderDatabase.CutoutSkinOverlay,
+                        Vector2.one,
+                        color,
+                        Color.white,
+                        null,
+                        maskPath
+                    );
+                }
+
+                return false;
             }
 
-            return true; // Allow HAR logic to run for HAR pawns
+            return true;
         }
     }
 
@@ -1578,6 +1580,36 @@ namespace MIM40kFactions
             spawnedMechanoids = newList;
 
             return true; // Allow HAR logic to run for HAR pawns
+        }
+    }
+
+    public static class EMWH_ServitorChipPatch
+    {
+        [HarmonyPrefix]
+        public static bool Prefix_GetTerrorThoughts(Pawn pawn, ref IEnumerable<Thought_MemoryObservationTerror> __result)
+        {
+            if (pawn == null || pawn.Dead || pawn.needs?.mood == null || IsServitorPawn(pawn))
+            {
+                __result = new List<Thought_MemoryObservationTerror>();
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsServitorPawn(Pawn pawn)
+        {
+            if (pawn.health?.hediffSet == null)
+                return false;
+
+            foreach (var hediff in pawn.health.hediffSet.hediffs)
+            {
+                // Match against known servitor chip hediffs
+                if (hediff.def.defName?.StartsWith("EMAM_ServitorChip_") == true)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

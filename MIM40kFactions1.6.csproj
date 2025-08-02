@@ -81,6 +81,23 @@
     <Compile Include="AbilityRestrictionExtension.cs" />
     <Compile Include="ApparelRestrictionbyRaceExtension.cs" />
     <Compile Include="ApparelRestrictionbyHediffExtension.cs" />
+    <Compile Include="Building_SpiritStoneVault.cs" />
+    <Compile Include="FocusStrengthOffset_NearbySpiritStoneGraves.cs" />
+    <Compile Include="FocusStrengthOffset_SpiritStoneRelationship.cs" />
+    <Compile Include="FocusStrengthOffset_SpiritStoneStored.cs" />
+    <Compile Include="StoredRelationInfo.cs" />
+    <Compile Include="Utility_SpiritStone.cs" />
+    <Compile Include="Recipe_InstallImplant_Servitor.cs" />
+    <Compile Include="CompSpiritStoneDecay.cs" />
+    <Compile Include="CompProperties_SpiritStoneDecay.cs" />
+    <Compile Include="CompProperties_SpiritStone.cs" />
+    <Compile Include="CompSpiritStone.cs" />
+    <Compile Include="HediffCompProperties_SpiritStone.cs" />
+    <Compile Include="HediffComp_SpiritStone.cs" />
+    <Compile Include="GenderHeadTypeSet.cs" />
+    <Compile Include="GenderBodyTypeSet.cs" />
+    <Compile Include="Utility_DependencyManager.cs" />
+    <Compile Include="Utility_SporeManager.cs" />
     <Compile Include="IsMIMMechanoidExtension.cs" />
     <Compile Include="CompProperties_PreventDamage.cs" />
     <Compile Include="CompPreventDamage.cs" />
@@ -96,7 +113,6 @@
     <Compile Include="Verb_ArcSprayPenetratePistol.cs" />
     <Compile Include="Verb_ShootLasBeamPistol.cs" />
     <Compile Include="Verb_ShootPistol.cs" />
-    <Compile Include="ThoughtDefSanitizerCategoryExtension.cs" />
     <Compile Include="Utility_TargetValidator.cs" />
     <Compile Include="CombatBuildingExtension.cs" />
     <Compile Include="Verb_ShootRadialBeam.cs" />
@@ -287,14 +303,13 @@
     <Compile Include="Hediff_Mutation_Tzaangor.cs" />
     <Compile Include="MIM40kFactionsGasProperties.cs" />
     <Compile Include="EMWH_BlightGas.cs" />
-    <Compile Include="MIM40kFactionsDamageDefOf.cs" />
     <Compile Include="HediffGiver_RaceBase.cs" />
     <Compile Include="CompAbilityEffect_RemoveHediffs.cs" />
     <Compile Include="CompProperties_AbilityRemoveHediffs.cs" />
     <Compile Include="CompUseEffect_SpawnerPawn.cs" />
     <Compile Include="CompProperties_SpawnerPawnonItem.cs" />
-    <Compile Include="EMNC_Necron_ValidatiorExtension.cs" />
-    <Compile Include="Comp_TargetableEMNC_Necron.cs" />
+    <Compile Include="NecronalidatiorExtension.cs" />
+    <Compile Include="CompTargetableNecron.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

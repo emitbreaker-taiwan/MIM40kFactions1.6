@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using RimWorld;
 using Verse;
 
-namespace MIM40kFactions
+namespace MIM40kFactions.GenestealerCult
 {
     public class GenestealersKissFactionExtension : DefModExtension
     {
