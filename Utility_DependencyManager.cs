@@ -90,5 +90,10 @@ namespace MIM40kFactions
         {
             return ModsConfig.IsActive("emitbreaker.MIM.WH40k.CSM.DG");
         }
+
+        public static bool IsAeldariCoreActive()
+        {
+            return ModsConfig.IsActive("emitbreaker.MIM.WH40k.AE.Core");
+        }
     }
 }

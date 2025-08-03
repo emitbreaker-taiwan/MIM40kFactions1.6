@@ -23,6 +23,11 @@ namespace MIM40kFactions.Orks
         {
             get
             {
+                if (!Utility_SporeManager.IsOKCoreActive())
+                {
+                    return false;
+                }
+
                 Pawn pawn = parent as Pawn;
                 if (Props.sporeLayFemaleOnly && pawn != null && pawn.gender != Gender.Female)
                 {
@@ -67,6 +72,11 @@ namespace MIM40kFactions.Orks
         {
             get
             {
+                if (!Utility_SporeManager.IsOKCoreActive())
+                {
+                    return false;
+                }
+
                 if (!Active)
                 {
                     return false;
@@ -99,31 +109,13 @@ namespace MIM40kFactions.Orks
             Scribe_References.Look(ref fertilizedBy, "fertilizedBy");
         }
 
-        //public override void CompTick()
-        //{
-        //    if (Active)
-        //    {
-        //        float num = 1f / (Props.sporeLayIntervalDays * 60000f);
-        //        if (parent is Pawn pawn)
-        //        {
-        //            num *= PawnUtility.BodyResourceGrowthSpeed(pawn);
-        //        }
-
-        //        sporeProgress += num;
-        //        if (sporeProgress > 1f)
-        //        {
-        //            sporeProgress = 1f;
-        //        }
-
-        //        if (ProgressStoppedBecauseUnfertilized && Props.sporeProgressCanBeStoppedBecauseUnfertilized)
-        //        {
-        //            sporeProgress = Props.sporeProgressUnfertilizedMax;
-        //        }
-        //    }
-        //}
-
         public override void CompTickRare()
         {
+            if (!Utility_SporeManager.IsOKCoreActive())
+            {
+                return;
+            }
+
             if (Active)
             {
                 float num = 250f / (Props.sporeLayIntervalDays * 60000f);

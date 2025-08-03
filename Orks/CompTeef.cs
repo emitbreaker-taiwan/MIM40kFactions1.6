@@ -25,6 +25,11 @@ namespace MIM40kFactions.Orks
         {
             get
             {
+                if (!Utility_SporeManager.IsOKCoreActive())
+                {
+                    return false;
+                }
+
                 if (!base.Active)
                 {
                     return false;

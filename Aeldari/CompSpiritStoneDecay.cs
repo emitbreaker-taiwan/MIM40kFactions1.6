@@ -31,23 +31,34 @@ namespace MIM40kFactions.Aeldari
 
         public override void CompTickRare()
         {
+            if (!Utility_AsuryaniPath.IsAeldariCoreActive())
+            {
+                return;
+            }
+
             base.CompTickRare();
 
-            if (parent.Spawned)
+            if (parent.ParentHolder is Building_SpiritStoneVault)
             {
-                var thingsAtCell = parent.Map.thingGrid.ThingsListAt(parent.Position);
-                bool storedProperly = thingsAtCell.Any(t => Props.properStorageDefs.Contains(t.def));
-
-                SetDecaying(!storedProperly);
+                SetDecaying(false);
+            }
+            else
+            {
+                SetDecaying(true);
             }
 
             if (!isDecaying) return;
 
-            decayProgressTicks += GenTicks.TickRareInterval; // GenTicks.TickRareInterval is always 2500
+            decayProgressTicks += GenTicks.TickRareInterval;
 
             if (decayProgressTicks >= Props.decayDurationTicks)
             {
                 TriggerSoulLostConsequences();
+            }
+
+            if (Props.debugMode)
+            {
+                Log.Message($"[MIM Debug] isDecaying={isDecaying}, holder={parent.ParentHolder?.GetType().Name}");
             }
         }
 

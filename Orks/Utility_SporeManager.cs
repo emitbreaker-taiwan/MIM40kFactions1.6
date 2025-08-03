@@ -6,12 +6,37 @@ using System.Text;
 using System.Threading.Tasks;
 using Verse;
 
-namespace MIM40kFactions
+namespace MIM40kFactions.Orks
 {
     public class Utility_SporeManager
     {
+        public static bool IsOKCoreActive()
+        {
+            try
+            {
+                var type = Type.GetType("MIM40kFactions.Utility_DependencyManager, MIM40kFactions1.6");
+                if (type == null) return false;
+
+                var method = type.GetMethod("IsOKCoreActive", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+                if (method == null) return false;
+
+                var result = method.Invoke(null, null);
+                return result is bool b && b;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static FactionDef SporeFactionManager(Thing thing, Thing parent, FactionDef defaultFactionDef, FactionDef forceFactionDef,  List<ThingDef> targetRaceDefstoCount, List<FactionDef> targetNPCFactions)
         {
+            if (!IsOKCoreActive())
+            {
+                Log.Error("[MIM Debug] SporeManager: OKCore is not active. Cannot determine faction. Fallback to OfInsects");
+                return Faction.OfInsects.def;
+            }
+
             if (thing == null || parent == null || parent.Map == null)
             {
                 Log.Error("[MIM Debug] SporeManager: Parent or Map is null for " + thing);

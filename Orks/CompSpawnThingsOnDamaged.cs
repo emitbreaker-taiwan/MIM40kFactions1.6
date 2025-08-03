@@ -24,6 +24,11 @@ namespace MIM40kFactions.Orks
         {
             get
             {
+                if (!Utility_SporeManager.IsOKCoreActive())
+                {
+                    return 0;
+                }
+
                 // Only recalculate when the tick changes
                 if (cachedPawnCountTick != Find.TickManager.TicksGame)
                 {
@@ -38,6 +43,11 @@ namespace MIM40kFactions.Orks
 
         public override void PostPostApplyDamage(DamageInfo dinfo, float totalDamageDealt)
         {
+            if (!Utility_SporeManager.IsOKCoreActive())
+            {
+                return;
+            }
+
             // Check spawn chance and cooldown before spawning
             if (Rand.Chance(Props.spawnChance) && Find.TickManager.TicksGame >= lastSpawnedTick + SpawnCooldown)
             {
@@ -48,6 +58,11 @@ namespace MIM40kFactions.Orks
 
         public bool TryDoSpawn()
         {
+            if (!Utility_SporeManager.IsOKCoreActive())
+            {
+                return false;
+            }
+
             if (!parent.Spawned)
             {
                 return false;
@@ -125,6 +140,11 @@ namespace MIM40kFactions.Orks
 
         private bool CheckMaxAdjacentSpawn()
         {
+            if (!Utility_SporeManager.IsOKCoreActive())
+            {
+                return false;
+            }
+
             int num = 0;
             for (int i = 0; i < 9; i++)
             {
@@ -192,6 +212,11 @@ namespace MIM40kFactions.Orks
 
         private FactionDef AssignFactionBasedOnConditions()
         {
+            if (!Utility_SporeManager.IsOKCoreActive())
+            {
+                return Faction.OfInsects.def;
+            }
+
             // Custom faction assignment logic
             if (Props.defaultFactionDef == null || Find.FactionManager.FirstFactionOfDef(Props.defaultFactionDef) == null)
             {
@@ -227,6 +252,11 @@ namespace MIM40kFactions.Orks
 
         private bool IsCellValidForSpawn(IntVec3 cell, ThingDef thingToSpawn, int spawnCount, Thing parent)
         {
+            if (!Utility_SporeManager.IsOKCoreActive())
+            {
+                return false;
+            }
+
             // Check if cell is walkable
             if (!cell.Walkable(parent.Map)) return false;
 

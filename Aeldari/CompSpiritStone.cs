@@ -20,6 +20,7 @@ namespace MIM40kFactions.Aeldari
         public string lastPathOrAspect;
         public List<AbilityDef> psycastsDefs;
         public List<StoredRelationInfo> relations;
+        public List<StoredPathHistoryEntry> pathHistory;
 
         public bool alreadyHonored = false;
 
@@ -34,6 +35,7 @@ namespace MIM40kFactions.Aeldari
             hediffDefs = new List<HediffDef>();
             psycastsDefs = new List<AbilityDef>();
             relations = new List<StoredRelationInfo>();
+            pathHistory = new List<StoredPathHistoryEntry>();
         }
 
         public override void PostExposeData()
@@ -54,6 +56,8 @@ namespace MIM40kFactions.Aeldari
             Scribe_Collections.Look(ref skillLevels, "skillLevels", LookMode.Def, LookMode.Value);
 
             Scribe_Collections.Look(ref relations, "relations", LookMode.Deep);
+
+            Scribe_Collections.Look(ref pathHistory, "pathHistory", LookMode.Deep);
 
             if (Scribe.mode == LoadSaveMode.PostLoadInit && relations == null)
             {
@@ -113,6 +117,40 @@ namespace MIM40kFactions.Aeldari
                     otherPawnFactionDef = r.otherPawn.Faction?.def,
                     relationDef = r.def
                 }).ToList();
+
+            var pathHediff = deceasedPawn.health?.hediffSet?.hediffs?
+                .OfType<Hediff_AsuryaniPath>()
+                .FirstOrDefault();
+
+            if (pathHediff != null)
+            {
+                if (pathHediff.currentPathDef != null)
+                {
+                    lastPathOrAspect = pathHediff.currentPathDef.label;
+                }
+
+                var allHistory = Utility_AsuryaniPath.GetAllPathData(deceasedPawn);
+                if (!allHistory.NullOrEmpty())
+                {
+                    pathHistory = new List<StoredPathHistoryEntry>();
+
+                    foreach (var data in allHistory)
+                    {
+                        if (data?.pathDef == null) continue;
+
+                        pathHistory.Add(new StoredPathHistoryEntry
+                        {
+                            defName = data.pathDef.defName,
+                            label = data.pathDef.label,
+                            completed = data.completed,
+                            isExarch = data.isExarch,
+                            isLost = data.isLost,
+                            ticksEntered = data.ticksEntered,
+                            ticksExited = data.ticksExited
+                        });
+                    }
+                }
+            }
         }
 
         public override string CompInspectStringExtra()
@@ -150,6 +188,17 @@ namespace MIM40kFactions.Aeldari
                     {
                         sb.AppendLine();
                         sb.Append("EMAE_SoulPrimarySkill".Translate(primarySkill.Key.label, primarySkill.Value));
+                    }
+                }
+                if (pathHistory != null && pathHistory.Any())
+                {
+                    sb.AppendLine();
+                    sb.Append("EMAE_SoulPathHistory".Translate());
+
+                    foreach (var path in pathHistory.OrderBy(p => p.ticksEntered))
+                    {
+                        string status = path.isExarch ? "EMAE_ImmersionLevel_Exarch".Translate().ToString() : path.isExarch ? "EMAE_ImmersionLevel_Complete".Translate().ToString() : null;
+                        sb.AppendLine($"• {path.label} ({status})");
                     }
                 }
 

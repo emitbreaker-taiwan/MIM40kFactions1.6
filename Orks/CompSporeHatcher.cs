@@ -39,6 +39,11 @@ namespace MIM40kFactions.Orks
 
         public override void CompTick()
         {
+            if (!Utility_SporeManager.IsOKCoreActive())
+            {
+                return;
+            }
+
             if (!TemperatureDamaged)
             {
                 if (parent.ParentHolder is Pawn_CarryTracker pawn_CarryTracker)
@@ -60,6 +65,11 @@ namespace MIM40kFactions.Orks
 
         private void ProcessHatch()
         {
+            if (!Utility_SporeManager.IsOKCoreActive())
+            {
+                return;
+            }
+
             // Cache and reduce redundant calculations
             float rand = Rand.Range(1f, 100f);
 
@@ -95,6 +105,11 @@ namespace MIM40kFactions.Orks
 
         public void Hatch()
         {
+            if (!Utility_SporeManager.IsOKCoreActive())
+            {
+                return;
+            }
+
             try
             {
                 // Simplified pawn generation logic
@@ -118,6 +133,11 @@ namespace MIM40kFactions.Orks
 
         private void SelectPawnToSpawn()
         {
+            if (!Utility_SporeManager.IsOKCoreActive())
+            {
+                return;
+            }
+
             // Optimize by caching or limiting the selection logic
             if (!Utility_DependencyManager.IsOKCoreActive())
             {

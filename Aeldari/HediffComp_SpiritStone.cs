@@ -11,10 +11,16 @@ namespace MIM40kFactions.Aeldari
     public class HediffComp_SpiritStone : HediffComp
     {
         public HediffCompProperties_SpiritStone Props => (HediffCompProperties_SpiritStone)props;
+
         private Map mapToSpawn => parent.pawn.MapHeld;
 
         public override void Notify_PawnDied(DamageInfo? dinfo, Hediff culprit = null)
         {
+            if (!Utility_AsuryaniPath.IsAeldariCoreActive())
+            {
+                return;
+            }
+
             base.Notify_PawnDied(dinfo, culprit);
             IntVec3 positionToSpawn = parent.pawn.Position;
 

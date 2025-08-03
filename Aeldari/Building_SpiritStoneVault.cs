@@ -12,25 +12,32 @@ namespace MIM40kFactions.Aeldari
     {
         private bool everNonEmpty;
 
-        private Graphic cachedGraphic;
+        private Graphic cachedGraphicFull;
+
+        private bool artInitialized = false;
+
+        public override bool StorageTabVisible => true;
 
         public override Graphic Graphic
         {
             get
             {
-                if (cachedGraphic == null)
+                if (HasAnyContents)
                 {
-                    if (innerContainer.Any(t => t.TryGetComp<CompSpiritStone>() != null))
+                    if (innerContainer.Any(t => t.TryGetComp<CompSpiritStone>() == null))
                     {
-                        cachedGraphic = def.building.fullGraveGraphicData.GraphicColoredFor(this);
+                        return base.Graphic;
                     }
-                    else
+
+                    if (cachedGraphicFull == null)
                     {
-                        cachedGraphic = base.Graphic;
+                        cachedGraphicFull = def.building.fullGraveGraphicData.GraphicColoredFor(this);
                     }
+
+                    return cachedGraphicFull;
                 }
 
-                return cachedGraphic;
+                return base.Graphic;
             }
         }
 
@@ -38,10 +45,7 @@ namespace MIM40kFactions.Aeldari
         {
             base.ExposeData();
             Scribe_Values.Look(ref everNonEmpty, "everNonEmpty", defaultValue: false);
-            if (Scribe.mode == LoadSaveMode.PostLoadInit)
-            {
-                cachedGraphic = null;
-            }
+            Scribe_Values.Look(ref artInitialized, "artInitialized", false);
         }
 
         public override bool TryAcceptThing(Thing thing, bool allowSpecialEffects = true)
@@ -62,7 +66,7 @@ namespace MIM40kFactions.Aeldari
             if (base.TryAcceptThing(thing, allowSpecialEffects))
             {
                 everNonEmpty = true;
-                cachedGraphic = null;
+
                 return true;
             }
 
@@ -71,6 +75,17 @@ namespace MIM40kFactions.Aeldari
 
         public override void Notify_HauledTo(Pawn hauler, Thing thing, int count)
         {
+            if (!artInitialized)
+            {
+                artInitialized = true;
+                CompArt comp = GetComp<CompArt>();
+                if (comp != null && !comp.Active && hauler.RaceProps.Humanlike)
+                {
+                    comp.JustCreatedBy(hauler);
+                    comp.InitializeArt(thing);
+                }
+            }
+
             var compSpiritStone = thing.TryGetComp<CompSpiritStone>();
             if (compSpiritStone == null || compSpiritStone.alreadyHonored) return;
 
@@ -86,6 +101,10 @@ namespace MIM40kFactions.Aeldari
                     colonist.needs.mood.thoughts.memories.TryGainMemory(thought);
                 }
             }
+
+            base.Map.mapDrawer.MapMeshDirty(base.Position, (ulong)MapMeshFlagDefOf.Buildings | (ulong)MapMeshFlagDefOf.Things);
+            hauler.records.Increment(RecordDefOf.CorpsesBuried);
+            TaleRecorder.RecordTale(TaleDefOf.BuriedCorpse, hauler, compSpiritStone?.pawnNameFull);
         }
 
         public override string GetInspectString()
@@ -119,6 +138,11 @@ namespace MIM40kFactions.Aeldari
             int maxAllowed = def.building?.maxItemsInCell ?? 1;
 
             return innerContainer.Count < maxAllowed;
+        }
+
+        public ThingOwner GetInnerContainer()
+        {
+            return innerContainer;
         }
     }
 }

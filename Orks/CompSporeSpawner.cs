@@ -24,6 +24,11 @@ namespace MIM40kFactions.Orks
         {
             get
             {
+                if (!Utility_SporeManager.IsOKCoreActive())
+                {
+                    return 0;
+                }
+
                 if (PropsSpawner.targetRaceDefstoCount == null)
                 {
                     return 0;
@@ -37,6 +42,11 @@ namespace MIM40kFactions.Orks
         {
             get
             {
+                if (!Utility_SporeManager.IsOKCoreActive())
+                {
+                    return 0;
+                }
+
                 int sporeCount = 0;
 
                 if (!Utility_DependencyManager.IsOKCoreActive())
@@ -62,35 +72,13 @@ namespace MIM40kFactions.Orks
             }
         }
 
-        //public override void CompTick()
-        //{
-        //    if (!IsValidSpawner()) return;
-
-        //    if (Utility_DependencyManager.IsOKCoreActive())
-        //    {
-        //        if (maxOrkoidCount > 0)
-        //        {
-        //            if (MapTargetPawnKindCount >= maxOrkoidCount)
-        //            {
-        //                return;
-        //            }
-        //        }
-        //        if (countSpore && maxSporeCount > 0)
-        //        {
-        //            if (MapTargetSpore >= maxSporeCount)
-        //            {
-        //                return;
-        //            }
-        //        }
-        //    }
-        //    else
-        //    {
-        //        TickInterval(1);
-        //    }
-        //}
-
         public override void CompTickRare()
         {
+            if (!Utility_SporeManager.IsOKCoreActive())
+            {
+                return;
+            }
+
             if (!IsValidSpawner()) return;
 
             if (Utility_DependencyManager.IsOKCoreActive())
@@ -116,6 +104,11 @@ namespace MIM40kFactions.Orks
 
         public override void CompTickLong()
         {
+            if (!Utility_SporeManager.IsOKCoreActive())
+            {
+                return;
+            }
+
             if (!IsValidSpawner()) return;
 
             if (Utility_DependencyManager.IsOKCoreActive())
@@ -141,6 +134,11 @@ namespace MIM40kFactions.Orks
 
         private void TickInterval(int interval)
         {
+            if (!Utility_SporeManager.IsOKCoreActive())
+            {
+                return;
+            }
+
             CompCanBeDormant comp = parent.GetComp<CompCanBeDormant>();
             if (comp != null)
             {
